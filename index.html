@@ -412,6 +412,7 @@
             <div id="sidebar-accounts-list" style="margin-top:16px;"></div>
         </nav>
         <div style="margin-top:auto;">
+            <div class="nav-item" onclick="startGuidedTour()"><i data-lucide="help-circle" style="width:18px;height:18px;color:var(--accent);"></i> Quick Tour</div>
             <div class="nav-item" data-page="settings" onclick="navigateTo('settings')"><i data-lucide="settings" style="width:18px;height:18px;"></i> Settings</div>
             <div style="background:rgba(255,255,255,.5);border:1px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;margin-top:8px;" onclick="openProfileModal()">
                 <div style="display:flex;align-items:center;gap:12px;">
@@ -1093,12 +1094,12 @@
                     <span id="month-display" style="padding:8px 16px;font-size:14px;font-weight:800;">${fmtMonthYear(state.currentMonth,state.currentYear)}</span>
                     <button style="padding:8px 12px;border:none;background:transparent;border-radius:10px;cursor:pointer;" onclick="changeMonth(1)"><i data-lucide="chevron-right" style="width:16px;height:16px;"></i></button>
                 </div>
-                <button onclick="openAddTransaction()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);">
+                <button id="tour-add-entry" onclick="openAddTransaction()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);">
                     <i data-lucide="plus" style="width:18px;height:18px;"></i> Add Entry
                 </button>`;
         } else if (page==='accounts') {
             box.innerHTML = `
-                <button onclick="openAddAccount()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);">
+                <button id="tour-add-account" onclick="openAddAccount()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);">
                     <i data-lucide="plus" style="width:18px;height:18px;"></i> Add Account
                 </button>`;
         } else if (page==='goals') {
@@ -1969,7 +1970,7 @@
         showInputModal('New Category', 'Enter a name for the category', '', name => {
             if(!name||!name.trim()) return;
             const g=state.categoryGroups.find(x=>x.id===gid); if(!g) return;
-            g.categories.push({id:uid(),name:name.trim(),monthAssigned:{},target:0,goalType:'none',goalBehavior:'refillTo'});
+            g.categories.push({id:uid(),name:name.trim(),monthAssigned:{},target:0,goalType:'monthly',goalBehavior:'refillTo'});
             save();
         });
     }
@@ -2413,11 +2414,20 @@
         showToast('Excel exported!');
     }
     function resetBudget() {
-        showConfirm('Reset Everything','All data will be permanently deleted.',()=>{
-            state=JSON.parse(JSON.stringify(DEFAULT_STATE));
-            localStorage.removeItem(STORAGE_KEY);
-            _aiMessages=[];
-            init();
+        showConfirm('Reset Everything','All data will be permanently deleted. Your profile and settings will be preserved.', async ()=>{
+            const profile = JSON.parse(JSON.stringify(state.profile));
+            const settings = JSON.parse(JSON.stringify(state.settings));
+            
+            state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            state.profile = profile;
+            state.settings = settings;
+            
+            // Explicitly save the reset state to both LocalStorage and Supabase
+            save(); 
+            
+            // Re-boot the app to show the Welcome screen if state is fresh
+            bootApp();
+            showToast('Budget reset successfully!');
         });
     }
     function applyQuickSetup() {
@@ -2432,10 +2442,118 @@
             {name:'📚 Education',cats:['Courses','Books','Supplies']}
         ];
         template.forEach(g=>{
-            const group={id:uid(),name:g.name,categories:g.cats.map(c=>({id:uid(),name:c,monthAssigned:{},target:0,goalType:'none',goalBehavior:'refillTo'}))};
+            const group={id:uid(),name:g.name,categories:g.cats.map(c=>({id:uid(),name:c,monthAssigned:{},target:0,goalType:'monthly',goalBehavior:'refillTo'}))};
             state.categoryGroups.push(group);
         });
         closeModal(); save(); showToast('Categories loaded!');
+    }
+
+    // ── Guided Tour ──
+    let _tourStep = 0;
+    const _tourData = [
+        {
+            title: "Connect Your Money",
+            desc: "Start by linking your real-world banks. This builds your 'Ready to Assign' pile.",
+            target: "#tour-add-account",
+            pos: "bottom",
+            action: () => navigateTo('accounts')
+        },
+        {
+            title: "Your Pile of Cash",
+            desc: "This shows every dollar you own that doesn't have a job yet. Aim for zero!",
+            target: ".rta-card",
+            pos: "bottom",
+            action: () => navigateTo('budget')
+        },
+        {
+            title: "Fill the Envelopes",
+            desc: "Click any category to 'Assign' money to it. This moves cash from your pile into an envelope.",
+            target: ".cat-card",
+            pos: "left",
+            action: () => navigateTo('budget')
+        },
+        {
+            title: "Log Your Spending",
+            desc: "As you spend money, record it here. We'll deduct it from your envelopes automatically.",
+            target: "#tour-add-entry",
+            pos: "bottom",
+            action: () => navigateTo('budget')
+        }
+    ];
+
+    function startGuidedTour() {
+        _tourStep = 0;
+        document.getElementById('tour-overlay').classList.remove('hidden');
+        renderTourStep();
+    }
+
+    function renderTourStep() {
+        const step = _tourData[_tourStep];
+        if(!step) { endTour(); return; }
+        
+        if(step.action) step.action();
+
+        // Use a retry mechanism to wait for the element to appear in the DOM
+        let retries = 0;
+        const checkElement = () => {
+            const targetEl = document.querySelector(step.target);
+            if(!targetEl) {
+                if(retries < 10) { // Try for 1 second total
+                    retries++;
+                    setTimeout(checkElement, 100);
+                } else {
+                    console.warn('Tour target not found:', step.target);
+                    _tourStep++; renderTourStep(); 
+                }
+                return;
+            }
+
+            const rect = targetEl.getBoundingClientRect();
+            const spotlight = document.getElementById('tour-spotlight');
+            const tooltip = document.getElementById('tour-tooltip');
+
+            // Position spotlight
+            spotlight.style.top = (rect.top - 5) + 'px';
+            spotlight.style.left = (rect.left - 5) + 'px';
+            spotlight.style.width = (rect.width + 10) + 'px';
+            spotlight.style.height = (rect.height + 10) + 'px';
+
+            // Position tooltip
+            let tTop, tLeft;
+            const gap = 20;
+            if(step.pos === 'right') {
+                tTop = rect.top;
+                tLeft = rect.right + gap;
+            } else if(step.pos === 'bottom') {
+                tTop = rect.bottom + gap;
+                tLeft = rect.left + (rect.width/2) - 140;
+            } else if(step.pos === 'left') {
+                tTop = rect.top;
+                tLeft = rect.left - 280 - gap;
+            } else { // top
+                tTop = rect.top - 200 - gap; // fallback height
+                tLeft = rect.left + (rect.width/2) - 140;
+            }
+
+            // Keep in bounds
+            tLeft = Math.max(20, Math.min(window.innerWidth - 300, tLeft));
+            tTop = Math.max(20, Math.min(window.innerHeight - 250, tTop));
+
+            tooltip.style.top = tTop + 'px';
+            tooltip.style.left = tLeft + 'px';
+
+            document.getElementById('tour-title').innerText = step.title;
+            document.getElementById('tour-desc').innerText = step.desc;
+            document.getElementById('tour-progress').innerText = `Step ${_tourStep + 1} of ${_tourData.length}`;
+            document.getElementById('tour-next').innerText = _tourStep === _tourData.length - 1 ? "Finish" : "Next";
+            document.getElementById('tour-next').onclick = (e) => { e.stopPropagation(); _tourStep++; renderTourStep(); };
+        };
+
+        checkElement();
+    }
+
+    function endTour() {
+        document.getElementById('tour-overlay').classList.add('hidden');
     }
 
     // ── Profile ──
@@ -2708,7 +2826,7 @@
             ]},
             {id:'g5',name:'💰 Savings Goals',categories:[
                 {id:'c12',name:'Emergency Fund',monthAssigned:{[mk]:100000},target:100000,goalType:'monthly',goalBehavior:'setAside'},
-                {id:'c13',name:'Vacation Fund',monthAssigned:{[mk]:50000},target:50000,goalType:'saving',goalBehavior:'setAside'}
+                {id:'c13',name:'Vacation Fund',monthAssigned:{[mk]:50000},target:50000,goalType:'monthly',goalBehavior:'setAside'}
             ]}
         ];
         state.transactions=[
@@ -2803,5 +2921,21 @@
     // Boot
     init();
     </script>
+    
+    <!-- Guided Tour UI -->
+    <div id="tour-overlay" class="hidden" style="position:fixed;inset:0;z-index:9000;pointer-events:none;transition:all .3s;">
+        <div id="tour-spotlight" style="position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);transition:all .4s cubic-bezier(0.4, 0, 0.2, 1);pointer-events:auto;"></div>
+        <div id="tour-tooltip" style="position:absolute;width:280px;background:var(--bg-card);border-radius:16px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,0.25);border:1px solid var(--border);pointer-events:auto;transition:all .3s;">
+            <h4 id="tour-title" style="font-size:15px;font-weight:900;margin-bottom:8px;color:var(--text-primary);"></h4>
+            <p id="tour-desc" style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;"></p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span id="tour-progress" style="font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;">Step 1 of 4</span>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="endTour()" style="background:transparent;border:none;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;">Skip</button>
+                    <button id="tour-next" class="primary" style="padding:6px 12px;font-size:12px;">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
