@@ -1141,7 +1141,7 @@
             const b = getAccountBalance(a.id);
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-radius:8px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--bg-nav-active)'" onmouseout="this.style.background='transparent'" onclick="navigateTo('accounts');selectAccount('${a.id}')">
                 <span style="font-size:12px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${a.name}</span>
-                <span class="tabular" style="font-size:10px;font-weight:700;color:${b<0?'var(--red)':'var(--text-secondary)'};">${fmtAmt(b)}</span>
+                <span class="tabular" style="font-size:10px;font-weight:700;white-space:nowrap;color:${b<0?'var(--red)':'var(--text-secondary)'};">${fmtAmt(b)}</span>
             </div>`;
         }).join('');
         document.getElementById('user-name-display').textContent = state.profile?.name || 'Guest User';
@@ -1380,10 +1380,10 @@
         state.accounts.forEach(a => {
             const b = getAccountBalance(a.id);
             const sel = a.id===selId;
-            const typeInfo = ACCOUNT_TYPES.find(t=>t.value===a.type)||{emoji:'💼',label:'Other'};
+            const typeInfo = ACCOUNT_TYPES.find(t=>t.value===a.type)||{label:'Other'};
             html += `<div onclick="selectAccount('${a.id}')" style="background:${sel?'var(--accent-light)':'var(--bg-card)'};padding:24px;border-radius:20px;border:1.5px solid ${sel?'var(--accent)':'var(--border-light)'};cursor:pointer;transition:all .2s;position:relative;" onmouseover="if(!${sel})this.style.borderColor='var(--accent)'" onmouseout="if(!${sel})this.style.borderColor='var(--border-light)'">
                 <button onclick="event.stopPropagation();openEditAccount('${a.id}')" style="position:absolute;top:12px;right:12px;border:none;background:transparent;cursor:pointer;padding:4px;border-radius:8px;" onmouseover="this.style.background='var(--bg-sidebar)'" onmouseout="this.style.background='transparent'"><i data-lucide="more-horizontal" style="width:16px;height:16px;color:#AAA;"></i></button>
-                <p style="font-size:10px;font-weight:800;text-transform:uppercase;color:#AAA;margin-bottom:4px;">${typeInfo.emoji} ${typeInfo.label}</p>
+                <p style="font-size:10px;font-weight:800;text-transform:uppercase;color:#AAA;margin-bottom:4px;">${typeInfo.label}</p>
                 <p style="font-size:14px;font-weight:800;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.name}</p>
                 <p class="tabular" style="font-size:22px;font-weight:900;color:${b<0?'var(--red)':'var(--green)'};">${fmtAmt(b)}</p>
                 ${b<0?'<p style="font-size:10px;font-weight:700;color:var(--red);margin-top:2px;">Balance owed</p>':''}
