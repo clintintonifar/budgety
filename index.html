@@ -230,6 +230,57 @@ select.form-input{cursor:pointer;} select.form-input option{font-family:var(--fo
 .section-divider{height:1px;background:var(--border-light);margin:6px 8px;}
 @media(max-width:700px){.budget-table-header,.group-row,.cat-row{grid-template-columns:1fr 110px 110px;}.cat-row{padding-left:28px;}.settings-grid{grid-template-columns:1fr;}.accounts-grid,.more-grid{grid-template-columns:1fr;}}
 
+/* ═══ AI CHAT ═══ */
+.content.ai-mode{overflow-y:hidden!important;display:flex!important;flex-direction:column!important;padding:0!important;}
+.ai-chat-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden;padding:20px 28px 0;}
+.ai-chat-header{display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ai-header-icon{width:38px;height:38px;background:linear-gradient(135deg,#296FF0 0%,#8B5CF6 100%);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 3px 8px rgba(41,111,240,.30);}
+.ai-header-title{font-size:16px;font-weight:700;letter-spacing:-0.025em;}
+.ai-header-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.ai-clear-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:9999px;padding:5px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.ai-clear-btn:hover{border-color:var(--red);color:var(--red);}
+.ai-messages{flex:1;overflow-y:auto;padding:14px 0;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;}
+.ai-messages::-webkit-scrollbar{display:none;}
+.ai-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:24px 20px;}
+.ai-welcome-icon{font-size:52px;margin-bottom:14px;}
+.ai-welcome-title{font-size:20px;font-weight:700;letter-spacing:-0.03em;margin-bottom:8px;}
+.ai-welcome-sub{font-size:13px;color:var(--text-secondary);line-height:1.55;max-width:300px;margin:0 auto;}
+.ai-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px;}
+.ai-suggestion{background:var(--surface2);border:1px solid var(--border);border-radius:9999px;padding:7px 14px;font-size:12px;font-family:var(--font);color:var(--text-primary);cursor:pointer;transition:all .15s;line-height:1.3;text-align:left;}
+.ai-suggestion:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
+.ai-msg-row{display:flex;align-items:flex-end;gap:8px;}
+.ai-msg-row.user{justify-content:flex-end;}
+.ai-msg-row.assistant{justify-content:flex-start;}
+.ai-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:linear-gradient(135deg,#296FF0,#8B5CF6);}
+.ai-avatar.user{background:var(--surface3);font-size:12px;}
+.ai-bubble{max-width:74%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.55;word-break:break-word;}
+.ai-bubble.user{background:var(--accent);color:white;border-radius:16px 16px 4px 16px;}
+.ai-bubble.assistant{background:var(--surface2);border:1px solid var(--border);border-radius:16px 16px 16px 4px;color:var(--text-primary);}
+.ai-bubble p{margin:0 0 7px;}.ai-bubble p:last-child{margin-bottom:0;}
+.ai-bubble strong{font-weight:600;}
+.ai-bubble em{font-style:italic;}
+.ai-bubble code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;font-family:monospace;}
+[data-theme="dark"] .ai-bubble code{background:rgba(255,255,255,.12);}
+.ai-bubble ul,.ai-bubble ol{padding-left:18px;margin:4px 0;}
+.ai-bubble li{margin-bottom:3px;}
+.ai-typing-wrap{display:flex;align-items:flex-end;gap:8px;}
+.ai-typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:16px 16px 16px 4px;}
+.ai-typing span{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:aiDot 1.2s infinite ease-in-out;}
+.ai-typing span:nth-child(2){animation-delay:.2s;}
+.ai-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes aiDot{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-6px);opacity:1;}}
+.ai-input-area{display:flex;gap:8px;align-items:flex-end;padding:10px 28px 18px;border-top:1px solid var(--border);flex-shrink:0;background:var(--surface);}
+[data-theme="dark"] .ai-input-area{background:#18181B;}
+.ai-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;font-size:14px;font-family:var(--font);color:var(--text-primary);outline:none;resize:none;min-height:42px;max-height:110px;overflow-y:auto;line-height:1.4;transition:border-color .15s,box-shadow .15s;-webkit-overflow-scrolling:touch;}
+.ai-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(41,111,240,.10);background:var(--surface);}
+.ai-input::placeholder{color:var(--text-muted);}
+.ai-send-btn{width:42px;height:42px;border-radius:12px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;transition:all .15s;box-shadow:0 3px 6px rgba(41,111,240,.3);}
+.ai-send-btn:hover{background:var(--accent-dark);transform:translateY(-1px);}
+.ai-send-btn:active{transform:scale(.93);}
+.ai-send-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.ai-send-btn svg{width:17px;height:17px;}
+.ai-no-data-banner{background:var(--yellow-light);border:1px solid var(--yellow);border-radius:10px;padding:9px 14px;font-size:12px;margin:8px 28px 0;flex-shrink:0;}
+
 /* ─────────────────────────────────────────────
    BUDGET SCREEN
 ───────────────────────────────────────────── */
@@ -1968,6 +2019,12 @@ select.form-input option { font-family: var(--font); }
       <span class="nav-tab-label">Goals</span>
     </div>
   </button>
+  <button class="nav-tab" id="tab-ai" onclick="navigateTo('ai')">
+    <div class="nav-tab-inner">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke-width="1.5"/><path d="M8 12h.01M12 12h.01M16 12h.01" stroke-width="2.5" stroke-linecap="round"/><path d="M8 9c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="nav-tab-label">AI</span>
+    </div>
+  </button>
   <button class="nav-tab" id="tab-more" onclick="navigateTo('more')">
     <div class="nav-tab-inner">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
@@ -2513,7 +2570,7 @@ select.form-input option { font-family: var(--font); }
 </div><!-- /app-card -->
 <script>
 
-const TAB_MAP={budget:'budget','accounts-home':'accounts','all-transactions':'accounts',account:'accounts',reports:'more',goals:'goals',more:'more',scheduled:'more',payees:'more',loan:'more',reconcile:'more',settings:'more'};
+const TAB_MAP={budget:'budget','accounts-home':'accounts','all-transactions':'accounts',account:'accounts',reports:'more',goals:'goals',more:'more',scheduled:'more',payees:'more',loan:'more',reconcile:'more',settings:'more',ai:'ai'};
 
 function navigateTo(page,extra){
   state.currentPage=page;state.currentAccountId=extra||null;
@@ -2550,6 +2607,12 @@ function renderSidebar(){const el=document.getElementById('budgetNameDisplay');i
 function renderPage(){
   renderSidebar();
   const content=document.getElementById('mainContent');
+  // AI page needs special layout — no outer scroll, inner messages scroll
+  if(state.currentPage==='ai'){
+    content.classList.add('ai-mode');
+  } else {
+    content.classList.remove('ai-mode');
+  }
   const wrap=document.createElement('div');wrap.className='page-section';
   const p=state.currentPage;
   if(p==='budget')wrap.innerHTML=renderBudget();
@@ -2564,6 +2627,7 @@ function renderPage(){
   else if(p==='scheduled')wrap.innerHTML=renderScheduledPage();
   else if(p==='payees')wrap.innerHTML=renderPayeesPageNew();
   else if(p==='more')wrap.innerHTML=renderMorePage();
+  else if(p==='ai'){renderAIPage(content);return;}
   content.innerHTML='';content.appendChild(wrap);
   if(p==='loan')setTimeout(calcLoan,50);
   if(p==='reconcile')setTimeout(()=>{const sel=document.getElementById('reconcileAccount');if(sel)updateReconcileView();},50);
@@ -3962,6 +4026,350 @@ async function loadFromCloud(){
       _saveToStorageCore();
     }
   }catch(e){console.warn('Could not load cloud data, using local.',e);}
+}
+
+// ════ BUDGETY AI CHAT ════
+
+const GEMINI_API_KEY = 'AIzaSyBvf3ZMFWTK17CNur6nSRUJBggDzHdnyCA';
+const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+
+let _aiMessages = []; // {role:'user'|'assistant', content:string}
+let _aiLoading = false;
+
+function getBudgetContext() {
+  const m = state.currentMonth, y = state.currentYear;
+  const rta = getReadyToAssign();
+  const netWorth = getNetWorth();
+  const totalIn = getTotalInflows();
+  const totalOut = state.categoryGroups.reduce((s,g)=>s+g.categories.reduce((ss,c)=>ss+getCategoryActivity(c.id),0),0);
+
+  let ctx = `You are Budgety AI, a friendly and insightful personal finance advisor embedded in the Budgety zero-based budgeting app. You have COMPLETE access to the user's ENTIRE financial database — every transaction ever entered, all category history, and pre-computed monthly summaries. Be concise, warm, specific and actionable. Use the currency "${state.currency}". Never make up figures — always reference the actual data provided. You CAN answer year-over-year comparisons, spending trends, best/worst months, category breakdowns across any time range, and long-term goal projections.\n\n`;
+
+  ctx += `=== CURRENT SNAPSHOT: ${monthName(m,y)} ===\n`;
+  ctx += `Budget: ${state.budgetName} | Currency: ${state.currency} | Today: ${new Date().toISOString().slice(0,10)}\n`;
+  ctx += `Net Worth: ${fmt(netWorth)} | Ready to Assign: ${fmt(rta)}\n`;
+  ctx += `Income this month: ${fmt(totalIn)} | Spent this month: ${fmt(totalOut)} | Net: ${fmt(totalIn-totalOut)}\n\n`;
+
+  // Accounts
+  if(state.accounts.length){
+    ctx += `=== ACCOUNTS ===\n`;
+    state.accounts.forEach(a=>{
+      ctx+=`${a.name} | ${a.type} | Balance: ${fmt(getAccountBalance(a.id))}\n`;
+    });
+    ctx += '\n';
+  }
+
+  // Current month categories
+  if(state.categoryGroups.length){
+    ctx += `=== CURRENT MONTH BUDGET CATEGORIES ===\n`;
+    state.categoryGroups.forEach(g=>{
+      const gAss=g.categories.reduce((s,c)=>s+getCatThisMonthAssigned(c),0);
+      const gAct=g.categories.reduce((s,c)=>s+getCategoryActivity(c.id),0);
+      const gAvail=g.categories.reduce((s,c)=>s+getCategoryAvailable(c),0);
+      ctx+=`\n[${g.name}] Assigned:${fmt(gAss)} Spent:${fmt(gAct)} Available:${fmt(gAvail)}\n`;
+      g.categories.forEach(c=>{
+        const act=getCategoryActivity(c.id),avail=getCategoryAvailable(c),ass=getCatThisMonthAssigned(c),needs=getCatNeedsThisMonth(c);
+        ctx+=`  ${c.name}: assigned=${fmt(ass)} spent=${fmt(act)} avail=${fmt(avail)}`;
+        if(c.target>0)ctx+=` target=${fmt(c.target)}`;
+        if(needs>0)ctx+=` ⚠️UNDERFUNDED:${fmt(needs)}`;
+        if(avail<0)ctx+=` 🔴OVERSPENT`;
+        ctx+='\n';
+      });
+    });
+    ctx += '\n';
+  }
+
+  // Goals
+  if(state.goals.length){
+    ctx += `=== FINANCIAL GOALS ===\n`;
+    state.goals.forEach(g=>{
+      const pct=g.target>0?Math.min(100,g.saved/g.target*100):0;
+      const rem=Math.max(0,g.target-g.saved);
+      const mos=g.monthlyContribution>0?Math.ceil(rem/g.monthlyContribution):'?';
+      ctx+=`${g.emoji} ${g.name} (${g.type}): ${fmt(g.saved)}/${fmt(g.target)} ${pct.toFixed(0)}% | contrib:${fmt(g.monthlyContribution)}/mo | ${mos} months to go${g.targetDate?' | deadline:'+g.targetDate:''}\n`;
+    });
+    ctx += '\n';
+  }
+
+  // ── PRE-COMPUTED MONTHLY SUMMARIES (all history) ──
+  // Build a map: "YYYY-MM" -> { income, expense, net, byCategory:{catId:amount} }
+  const monthlyMap = {};
+  state.transactions.forEach(t=>{
+    const d=new Date(t.date+'T00:00:00');
+    if(isNaN(d))return;
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(!monthlyMap[key])monthlyMap[key]={income:0,expense:0,byCategory:{}};
+    const mo=monthlyMap[key];
+    if(t.type==='inflow'){mo.income+=t.amount;}
+    else if(t.type==='outflow'){
+      mo.expense+=t.amount;
+      if(t.category){mo.byCategory[t.category]=(mo.byCategory[t.category]||0)+t.amount;}
+    }
+  });
+
+  // Build category name lookup
+  const catNameMap={};
+  state.categoryGroups.forEach(g=>g.categories.forEach(c=>{catNameMap[c.id]=c.name;}));
+
+  const sortedMonths=Object.keys(monthlyMap).sort();
+  if(sortedMonths.length){
+    ctx += `=== MONTHLY SUMMARIES (ALL HISTORY — ${sortedMonths.length} months) ===\n`;
+    ctx += `Format: YYYY-MM | Income | Expense | Net | Top spending categories\n`;
+    sortedMonths.forEach(key=>{
+      const mo=monthlyMap[key];
+      const net=mo.income-mo.expense;
+      // Top 3 categories that month
+      const topCats=Object.entries(mo.byCategory)
+        .sort((a,b)=>b[1]-a[1]).slice(0,3)
+        .map(([id,amt])=>`${catNameMap[id]||id}:${fmt(amt)}`).join(', ');
+      ctx+=`${key} | +${fmt(mo.income)} | -${fmt(mo.expense)} | net:${fmt(net)}${topCats?' | '+topCats:''}\n`;
+    });
+    ctx += '\n';
+
+    // Year summaries
+    const yearMap={};
+    sortedMonths.forEach(key=>{
+      const yr=key.slice(0,4);
+      const mo=monthlyMap[key];
+      if(!yearMap[yr])yearMap[yr]={income:0,expense:0,months:0};
+      yearMap[yr].income+=mo.income;yearMap[yr].expense+=mo.expense;yearMap[yr].months++;
+    });
+    ctx += `=== ANNUAL SUMMARIES ===\n`;
+    Object.entries(yearMap).sort().forEach(([yr,d])=>{
+      const net=d.income-d.expense;
+      ctx+=`${yr}: Income=${fmt(d.income)} Expense=${fmt(d.expense)} Net=${fmt(net)} (${d.months} months of data)\n`;
+    });
+    ctx += '\n';
+
+    // Category totals across ALL time
+    const allCatTotals={};
+    state.transactions.filter(t=>t.type==='outflow'&&t.category).forEach(t=>{
+      allCatTotals[t.category]=(allCatTotals[t.category]||0)+t.amount;
+    });
+    const topAllTime=Object.entries(allCatTotals).sort((a,b)=>b[1]-a[1]).slice(0,15);
+    if(topAllTime.length){
+      ctx += `=== ALL-TIME TOP SPENDING CATEGORIES ===\n`;
+      topAllTime.forEach(([id,amt])=>{
+        ctx+=`${catNameMap[id]||id}: ${fmt(amt)} total\n`;
+      });
+      ctx += '\n';
+    }
+  }
+
+  // ── FULL TRANSACTION LOG ──
+  const allTxs=[...state.transactions].sort((a,b)=>a.date.localeCompare(b.date));
+  ctx += `=== COMPLETE TRANSACTION LOG (${allTxs.length} transactions, oldest→newest) ===\n`;
+  ctx += `Format: date | type | amount | payee | category | memo\n`;
+  allTxs.forEach(t=>{
+    const catName=catNameMap[t.category]||'';
+    const sign=t.type==='inflow'?'+':t.type==='transfer'?'⇄':'-';
+    ctx+=`${t.date}|${t.type}|${sign}${t.amount}|${t.payee||''}|${catName}${t.memo?'|'+t.memo:''}\n`;
+  });
+
+  return ctx;
+}
+
+function renderAIPage(contentEl) {
+  const hasData = state.accounts.length > 0 || state.transactions.length > 0 || state.categoryGroups.length > 0;
+  contentEl.innerHTML = `
+    ${!hasData ? '<div class="ai-no-data-banner">💡 Add some accounts or transactions first so I can analyze your actual budget data!</div>' : ''}
+    <div class="ai-chat-wrap">
+      <div class="ai-chat-header">
+        <div class="ai-header-icon">✨</div>
+        <div style="flex:1;min-width:0">
+          <div class="ai-header-title">Budgety AI</div>
+          <div class="ai-header-sub">Powered by Gemini Flash · Sees your live budget</div>
+        </div>
+        <button class="ai-clear-btn" onclick="clearAIChat()">Clear chat</button>
+      </div>
+      <div class="ai-messages" id="aiMessages"></div>
+      <div class="ai-input-area">
+        <textarea class="ai-input" id="aiInput" placeholder="Ask me anything about your budget…" rows="1"
+          onkeydown="handleAIKeydown(event)"
+          oninput="autoResizeAIInput(this)"></textarea>
+        <button class="ai-send-btn" id="aiSendBtn" onclick="sendAIMessage()" title="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  `;
+  refreshAIMessages();
+}
+
+function refreshAIMessages() {
+  const el = document.getElementById('aiMessages');
+  if (!el) return;
+  if (_aiMessages.length === 0) {
+    el.innerHTML = buildAIWelcome();
+  } else {
+    el.innerHTML = _aiMessages.map(buildAIMessageHTML).join('');
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+function buildAIWelcome() {
+  const suggestions = [
+    'Where am I overspending this month?',
+    'How long until I reach my savings goals?',
+    'Which categories are underfunded?',
+    'Give me 3 tips to save more based on my data.',
+    'What\'s my biggest expense category?',
+    'Am I on track with my budget?'
+  ];
+  return `<div class="ai-welcome">
+    <div class="ai-welcome-icon">🤖</div>
+    <div class="ai-welcome-title">Hi, I'm Budgety AI!</div>
+    <div class="ai-welcome-sub">I can see your full budget — ask me anything about your finances.</div>
+    <div class="ai-suggestions">${suggestions.map(s=>`<button class="ai-suggestion" onclick="sendAISuggestion(this.textContent)">${s}</button>`).join('')}</div>
+  </div>`;
+}
+
+function buildAIMessageHTML(msg) {
+  const isUser = msg.role === 'user';
+  const html = formatAIMarkdown(msg.content);
+  if (isUser) {
+    return `<div class="ai-msg-row user">
+      <div class="ai-bubble user">${html}</div>
+      <div class="ai-avatar user">👤</div>
+    </div>`;
+  } else {
+    return `<div class="ai-msg-row assistant">
+      <div class="ai-avatar">✨</div>
+      <div class="ai-bubble assistant">${html}</div>
+    </div>`;
+  }
+}
+
+function formatAIMarkdown(text) {
+  if (!text) return '';
+  // Convert markdown to HTML (simple subset)
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/gs,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/gs,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/^### (.+)$/gm,'<strong style="font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)">$1</strong>')
+    .replace(/^## (.+)$/gm,'<strong style="font-size:14px">$1</strong>')
+    .replace(/^# (.+)$/gm,'<strong style="font-size:15px">$1</strong>')
+    .replace(/^\s*[-•]\s+(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/gs,s=>`<ul>${s}</ul>`)
+    .replace(/^\d+\.\s+(.+)$/gm,'<li>$1</li>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>')
+    .replace(/^(?!<)/, '<p>').replace(/(?<!>)$/, '</p>')
+    .replace(/<p><\/p>/g,'')
+    .replace(/<p>(<ul>)/g,'$1').replace(/(<\/ul>)<\/p>/g,'$1')
+    .replace(/<br>(<li>)/g,'$1');
+}
+
+async function sendAIMessage() {
+  const inputEl = document.getElementById('aiInput');
+  if (!inputEl) return;
+  const text = inputEl.value.trim();
+  if (!text || _aiLoading) return;
+
+  inputEl.value = '';
+  autoResizeAIInput(inputEl);
+  inputEl.focus();
+
+  _aiMessages.push({ role: 'user', content: text });
+  refreshAIMessages();
+  appendAITyping();
+
+  _aiLoading = true;
+  const sendBtn = document.getElementById('aiSendBtn');
+  if (sendBtn) sendBtn.disabled = true;
+
+  try {
+    // Build Gemini conversation contents (user/model alternating)
+    const contents = _aiMessages.map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    }));
+
+    const body = {
+      system_instruction: { parts: [{ text: getBudgetContext() }] },
+      contents,
+      generationConfig: { temperature: 0.75, maxOutputTokens: 1024, topP: 0.95 }
+    };
+
+    const resp = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(()=>({}));
+      const errMsg = errData?.error?.message || `HTTP ${resp.status}`;
+      throw new Error(errMsg);
+    }
+
+    const data = await resp.json();
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!reply) throw new Error('No response received from Gemini.');
+
+    removeAITyping();
+    _aiMessages.push({ role: 'assistant', content: reply });
+    refreshAIMessages();
+
+  } catch (err) {
+    removeAITyping();
+    let friendly = err.message || 'Unknown error';
+    if (friendly.includes('API_KEY_INVALID') || friendly.includes('400')) {
+      friendly = 'Invalid API key. Please check the GEMINI_API_KEY in the code.';
+    } else if (friendly.includes('quota') || friendly.includes('429')) {
+      friendly = 'Rate limit reached. You\'ve hit the free tier limit — wait a minute and try again.';
+    } else if (friendly.includes('fetch')) {
+      friendly = 'Network error — check your internet connection.';
+    }
+    _aiMessages.push({ role: 'assistant', content: `❌ **Error:** ${friendly}` });
+    refreshAIMessages();
+  }
+
+  _aiLoading = false;
+  if (sendBtn) sendBtn.disabled = false;
+}
+
+function sendAISuggestion(text) {
+  const inputEl = document.getElementById('aiInput');
+  if (inputEl) { inputEl.value = text; autoResizeAIInput(inputEl); }
+  sendAIMessage();
+}
+
+function appendAITyping() {
+  const container = document.getElementById('aiMessages');
+  if (!container) return;
+  // Remove welcome screen if present
+  const welcome = container.querySelector('.ai-welcome');
+  if (welcome) welcome.remove();
+  const row = document.createElement('div');
+  row.className = 'ai-msg-row assistant'; row.id = 'aiTypingRow';
+  row.innerHTML = `<div class="ai-avatar">✨</div><div class="ai-typing"><span></span><span></span><span></span></div>`;
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeAITyping() {
+  document.getElementById('aiTypingRow')?.remove();
+}
+
+function clearAIChat() {
+  _aiMessages = [];
+  refreshAIMessages();
+}
+
+function handleAIKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAIMessage(); }
+}
+
+function autoResizeAIInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 110) + 'px';
 }
 
 // ════ INIT ════
