@@ -1924,7 +1924,8 @@ select.form-input option { font-family: var(--font); }
 
 <header class="topbar">
   <div class="topbar-left">
-    <div class="app-logo" onclick="openProfileModal()" title="Budgety">💚</div>
+    <div class="app-logo" title="Budgety">💚</div>
+    <div id="topbarAvatarLeft"></div>
     <button class="app-title-btn" onclick="openProfileModal()">
       <span class="app-title" id="budgetNameDisplay">Budgety</span>
       <span class="app-title-chevron">▾</span>
@@ -1938,6 +1939,7 @@ select.form-input option { font-family: var(--font); }
     </div>
   </div>
   <div class="topbar-right" id="topbarActions">
+    <button class="topbar-icon-btn" id="privacyToggleBtn" onclick="togglePrivacyMode()" title="Toggle privacy mode">👁</button>
     <button class="topbar-icon-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
   </div>
 </header>
@@ -2525,7 +2527,9 @@ function navigateTo(page,extra){
 }
 function buildTopbarActions(page){
   const el=document.getElementById('topbarActions');
-  const themeBtn=`<button class="topbar-icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">${document.documentElement.getAttribute('data-theme')==='dark'?'☀️':'🌙'}</button>`;
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const themeBtn=`<button class="topbar-icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">${isDark?'☀️':'🌙'}</button>`;
+  const privBtn=`<button class="topbar-icon-btn" id="privacyToggleBtn" onclick="togglePrivacyMode()" title="${state.privacyMode?'Show amounts':'Hide amounts'}" style="${state.privacyMode?'background:var(--accent);color:white;border-color:var(--accent);':''}">👁</button>`;
   let btns='';
   if(page==='budget')btns=`<button class="topbar-pill-btn secondary" onclick="openMoveMoneyModal()">🔁 Move</button><button class="topbar-pill-btn secondary" onclick="openAutoAssignModal()">⚡ Auto</button><button class="topbar-pill-btn primary" onclick="fundAllUnderfunded()">💚 Fund All</button>`;
   else if(page==='scheduled')btns=`<button class="topbar-pill-btn primary" onclick="openAddScheduledModal()">+ Schedule</button>`;
@@ -2533,7 +2537,14 @@ function buildTopbarActions(page){
   else if(page==='account'||page==='all-transactions')btns=`<button class="topbar-pill-btn secondary" onclick="exportToExcel()">📥 Export</button>`;
   else if(page==='goals')btns=`<button class="topbar-pill-btn primary" onclick="openAddGoalModal()">+ Goal</button>`;
   else if(page==='accounts-home')btns=`<button class="topbar-pill-btn primary" onclick="openModal('addAccountModal')">+ Account</button>`;
-  el.innerHTML=btns+themeBtn;
+  el.innerHTML=btns+privBtn+themeBtn;
+}
+function togglePrivacyMode(){
+  state.privacyMode=!state.privacyMode;
+  renderPage();
+  buildTopbarActions(state.currentPage);
+  // Re-attach avatar since buildTopbarActions rebuilds the container
+  updateTopbarAvatar();
 }
 function renderSidebar(){const el=document.getElementById('budgetNameDisplay');if(el)el.textContent=state.budgetName;}
 function renderPage(){
@@ -2595,6 +2606,7 @@ let state={
   editingTxId:null,pendingGroupId:null,editingCatId:null,editingCatGroupId:null,
   activeSettingsTab:'general',txSearchQuery:'',txFilters:new Set(),
   settings:{showReconciled:true,autoSave:true},
+  privacyMode:false,
   accounts:[],categoryGroups:[],transactions:[],goals:[],
   collapsedGroups:[],_initialised:false,scheduledTxs:[],payees:[],
   reportRange:'month',reportDrillGroup:null,reportDrillCat:null,
@@ -2833,8 +2845,8 @@ function seedDemo(){
 
 // ── UTILITIES ──
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
-function fmt(n){const dec=state.useDecimals?2:0;const abs=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});const cur=state.currency||'FCFA';const pos=state.currencyPosition||'after';const str=pos==='before'?`${cur} ${abs}`:`${abs} ${cur}`;return n<0?`-${str}`:str;}
-function fmtShort(n){const cur=state.currency||'FCFA';const pos=state.currencyPosition||'after';const dec=state.useDecimals?1:0;let abs;if(Math.abs(n)>=1000000)abs=(n/1000000).toFixed(dec)+'M';else if(Math.abs(n)>=1000)abs=(n/1000).toFixed(dec)+'k';else return fmt(n);const str=pos==='before'?`${cur} ${abs}`:`${abs} ${cur}`;return n<0?`-${str}`:str;}
+function fmt(n){if(state.privacyMode)return '••••';const dec=state.useDecimals?2:0;const abs=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});const cur=state.currency||'FCFA';const pos=state.currencyPosition||'after';const str=pos==='before'?`${cur} ${abs}`:`${abs} ${cur}`;return n<0?`-${str}`:str;}
+function fmtShort(n){if(state.privacyMode)return '••••';const cur=state.currency||'FCFA';const pos=state.currencyPosition||'after';const dec=state.useDecimals?1:0;let abs;if(Math.abs(n)>=1000000)abs=(n/1000000).toFixed(dec)+'M';else if(Math.abs(n)>=1000)abs=(n/1000).toFixed(dec)+'k';else return fmt(n);const str=pos==='before'?`${cur} ${abs}`:`${abs} ${cur}`;return n<0?`-${str}`:str;}
 function monthName(m,y){return new Date(y,m,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});}
 function fmtDate(d){const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 function hashColor(str){let h=0;for(let i=0;i<str.length;i++)h=str.charCodeAt(i)+((h<<5)-h);const cols=['#5b7fa6','#4a9b72','#c9942a','#7b5ea7','#3d8a8a','#c45f82','#c75a4a','#e0975c'];return cols[Math.abs(h)%cols.length];}
@@ -3277,6 +3289,7 @@ function renderSettings(){
     </div>
     <div class="settings-section"><h3>Display</h3>
       <div class="settings-row"><div><div class="settings-row-label">Show Reconciled Transactions</div></div><div class="toggle-switch ${state.settings.showReconciled?'on':''}" onclick="state.settings.showReconciled=!state.settings.showReconciled;saveToStorage();renderPage()"></div></div>
+      <div class="settings-row"><div><div class="settings-row-label">🔒 Privacy Mode</div><div class="settings-row-desc">Hide all amounts — useful when showing the app to someone</div></div><div class="toggle-switch ${state.privacyMode?'on':''}" onclick="togglePrivacyMode()"></div></div>
     </div>`;
   } else if(state.activeSettingsTab==='accounts'){
     panel=`<div class="settings-section"><h3>Manage Accounts</h3>
@@ -3806,16 +3819,16 @@ async function upsertProfile(displayName,avatarUrl){
 }
 function getInitials(name){return(name||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();}
 function updateTopbarAvatar(){
-  const right=document.getElementById('topbarActions');if(!right)return;
+  const slot=document.getElementById('topbarAvatarLeft');if(!slot)return;
   const initials=getInitials(_userProfile.displayName||'?');
-  const existing=right.querySelector('.profile-avatar');if(existing)existing.remove();
+  slot.innerHTML='';
   const div=document.createElement('div');
   div.className='profile-avatar';
   div.title=_userProfile.displayName||'Profile';
   div.onclick=openProfileModal;
   if(_userProfile.avatarUrl){div.innerHTML=`<img src="${_userProfile.avatarUrl}" alt=""/>`;}
-  else{div.style.fontSize='12px';div.style.fontWeight='800';div.textContent=initials;}
-  right.insertBefore(div,right.firstChild);
+  else{div.style.fontSize='12px';div.style.fontWeight='700';div.textContent=initials;}
+  slot.appendChild(div);
 }
 
 function populateProfileModal(){
