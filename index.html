@@ -4031,7 +4031,7 @@ async function loadFromCloud(){
 // ════ BUDGETY AI CHAT ════
 
 const GEMINI_API_KEY = 'AIzaSyBvf3ZMFWTK17CNur6nSRUJBggDzHdnyCA';
-const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 let _aiMessages = []; // {role:'user'|'assistant', content:string}
 let _aiLoading = false;
@@ -4304,9 +4304,12 @@ async function sendAIMessage() {
       generationConfig: { temperature: 0.75, maxOutputTokens: 1024, topP: 0.95 }
     };
 
-    const resp = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
+    const resp = await fetch(GEMINI_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': GEMINI_API_KEY
+      },
       body: JSON.stringify(body)
     });
 
