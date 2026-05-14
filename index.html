@@ -114,7 +114,8 @@ body::after{content:'';position:fixed;bottom:-10%;right:-5%;width:50%;height:60%
 [data-theme="dark"] .nav-tab.active .nav-tab-inner{background:rgba(255,255,255,0.15);}
 .nav-tab svg{width:20px;height:20px;color:var(--text-muted);transition:color .2s;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;}
 .nav-tab.active svg{color:#FFFFFF;}
-.nav-tab-label{font-size:13px;font-weight:600;color:#FFFFFF;white-space:nowrap;letter-spacing:-0.01em;}
+.nav-tab-label{font-size:13px;font-weight:600;color:#FFFFFF;white-space:nowrap;letter-spacing:-0.01em;display:none;}
+.nav-tab.active .nav-tab-label{display:inline;}
 
 /* FAB */
 .nav-fab-wrap{flex:1;display:flex;align-items:center;justify-content:center;}
@@ -2475,6 +2476,22 @@ select.form-input option { font-family: var(--font); }
 </div>
 <style>.cat-row-needs{background:rgba(255,149,0,0.04)!important}.cat-row-needs:hover{background:rgba(255,149,0,0.08)!important}</style>
 
+<!-- GENERIC CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <span class="modal-title" id="confirmModalTitle">Confirm</span>
+      <button class="modal-close" onclick="closeModal('confirmModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmModalMsg" style="font-size:14px;color:var(--text-secondary);line-height:1.6"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="modal-btn danger" id="confirmModalOkBtn" onclick="">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <div id="catDetailPanel">
   <div class="cat-detail-panel">
@@ -2984,9 +3001,16 @@ function refreshEC2BehaviorUI(val){
 }
 function updateEC2Calc(){const target=parseFloat(document.getElementById('ec2Target')?.value)||0,dateVal=document.getElementById('ec2TargetDate')?.value,el=document.getElementById('ec2Calc');if(!el)return;if(target>0&&dateVal&&state._ec2Type==='bydate'){const months=Math.max(1,Math.round((new Date(dateVal)-new Date())/(30*86400000)));el.innerHTML=`💡 Save <b>${fmt(target/months)}/month</b> for ${months} months`;el.style.display='';}else if(target>0&&state._ec2Type==='annual'){el.innerHTML=`💡 Save <b>${fmt(target/12)}/month</b>`;el.style.display='';}else el.style.display='none';}
 function saveEditCategory2(){const g=state.categoryGroups.find(x=>x.id===state.editingCatGroupId);if(!g)return;const c=g.categories.find(x=>x.id===state.editingCatId);if(!c)return;const name=document.getElementById('ec2Name')?.value.trim();if(name)c.name=name;c.target=parseFloat(document.getElementById('ec2Target')?.value)||0;c.goalType=state._ec2Type||'none';c.targetDate=document.getElementById('ec2TargetDate')?.value||'';c.note=document.getElementById('ec2Note')?.value||'';saveToStorage();closeModal('editCategoryModal2');showToast('Category updated!','success');renderPage();}
-function deleteCatFromEC2(){if(!confirm('Delete this category?'))return;const g=state.categoryGroups.find(x=>x.id===state.editingCatGroupId);if(!g)return;g.categories=g.categories.filter(c=>c.id!==state.editingCatId);closeModal('editCategoryModal2');saveToStorage();showToast('Deleted','info');renderPage();}
-function deleteCat(catId,groupId){if(!confirm('Delete this category?'))return;const g=state.categoryGroups.find(x=>x.id===groupId);if(!g)return;g.categories=g.categories.filter(c=>c.id!==catId);saveToStorage();showToast('Deleted','info');renderPage();}
-function deleteGroup(id){if(!confirm('Delete this group and all its categories?'))return;state.categoryGroups=state.categoryGroups.filter(g=>g.id!==id);saveToStorage();showToast('Group deleted','info');renderPage();}
+function showConfirm(title,msg,onOk){
+  document.getElementById('confirmModalTitle').textContent=title;
+  document.getElementById('confirmModalMsg').textContent=msg;
+  const btn=document.getElementById('confirmModalOkBtn');
+  btn.onclick=()=>{closeModal('confirmModal');onOk();};
+  openModal('confirmModal');
+}
+function deleteCatFromEC2(){showConfirm('Delete Category','Are you sure you want to delete this category? This cannot be undone.',()=>{const g=state.categoryGroups.find(x=>x.id===state.editingCatGroupId);if(!g)return;g.categories=g.categories.filter(c=>c.id!==state.editingCatId);closeModal('editCategoryModal2');saveToStorage();showToast('Category deleted','info');renderPage();});}
+function deleteCat(catId,groupId){showConfirm('Delete Category','Are you sure you want to delete this category? This cannot be undone.',()=>{const g=state.categoryGroups.find(x=>x.id===groupId);if(!g)return;g.categories=g.categories.filter(c=>c.id!==catId);saveToStorage();showToast('Category deleted','info');renderPage();});}
+function deleteGroup(id){showConfirm('Delete Group','Delete this group and all its categories? This cannot be undone.',()=>{state.categoryGroups=state.categoryGroups.filter(g=>g.id!==id);saveToStorage();showToast('Group deleted','info');renderPage();});}
 
 // ════ AUTO-ASSIGN ════
 function openAutoAssignModal(){openModal('autoAssignModal');setTimeout(updateAutoAssignPreview,50);}
@@ -3081,7 +3105,7 @@ function toggleClear(id){const t=state.transactions.find(x=>x.id===id);if(t){t.c
 function toggleTxSelect(id){if(state.selectedTxIds.has(id))state.selectedTxIds.delete(id);else state.selectedTxIds.add(id);renderPage();}
 function selectAllVisibleTxs(){document.querySelectorAll('.tx-row[id^="txrow-"]').forEach(el=>{state.selectedTxIds.add(el.id.replace('txrow-',''));});renderPage();}
 function bulkClearTxs(val){state.selectedTxIds.forEach(id=>{const t=state.transactions.find(x=>x.id===id);if(t)t.cleared=val;});state.selectedTxIds=new Set();saveToStorage();renderPage();}
-function bulkDeleteTxs(){if(!confirm(`Delete ${state.selectedTxIds.size} transactions?`))return;state.transactions=state.transactions.filter(t=>!state.selectedTxIds.has(t.id));state.selectedTxIds=new Set();saveToStorage();showToast('Deleted','info');renderPage();}
+function bulkDeleteTxs(){showConfirm('Delete Transactions',`Delete ${state.selectedTxIds.size} selected transactions? This cannot be undone.`,()=>{state.transactions=state.transactions.filter(t=>!state.selectedTxIds.has(t.id));state.selectedTxIds=new Set();saveToStorage();showToast('Transactions deleted','info');renderPage();});}
 function prepAndOpen(modalId){
   state.editingTxId=null;document.getElementById('txModalTitle').textContent='Add Transaction';document.getElementById('txSaveBtn').textContent='Save Transaction';
   document.getElementById('txDate').value=new Date().toISOString().slice(0,10);
@@ -3170,7 +3194,7 @@ function editTx(id){
   document.getElementById('txSaveBtn').textContent='Update';
   openModal('addTransactionModal');
 }
-function deleteTx(id){if(!confirm('Delete this transaction?'))return;state.transactions=state.transactions.filter(t=>t.id!==id);saveToStorage();showToast('Deleted','info');renderPage();}
+function deleteTx(id){showConfirm('Delete Transaction','Delete this transaction? This cannot be undone.',()=>{state.transactions=state.transactions.filter(t=>t.id!==id);saveToStorage();showToast('Transaction deleted','info');renderPage();});}
 
 
 // ════ GOALS ════
@@ -3181,8 +3205,8 @@ let _editingGoalId=null;
 function openEditGoalModal(id){const g=state.goals.find(x=>x.id===id);if(!g)return;_editingGoalId=id;const gcs=document.getElementById('editGoalCategory');gcs.innerHTML='<option value="">— None —</option>';state.categoryGroups.forEach(grp=>{const og=document.createElement('optgroup');og.label=grp.name;grp.categories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;og.appendChild(o);});gcs.appendChild(og);});document.getElementById('editGoalName').value=g.name;document.getElementById('editGoalEmoji').value=g.emoji||'🎯';document.getElementById('editGoalType').value=g.type||'saving';document.getElementById('editGoalTarget').value=g.target||0;document.getElementById('editGoalSaved').value=g.saved||0;document.getElementById('editGoalMonthly').value=g.monthlyContribution||0;document.getElementById('editGoalCategory').value=g.category||'';document.getElementById('editGoalDate').value=g.targetDate||'';updateEditGoalCalc();openModal('editGoalModal');}
 function updateEditGoalCalc(){const target=parseFloat(document.getElementById('editGoalTarget')?.value)||0,saved=parseFloat(document.getElementById('editGoalSaved')?.value)||0,monthly=parseFloat(document.getElementById('editGoalMonthly')?.value)||0,dateVal=document.getElementById('editGoalDate')?.value,rem=Math.max(0,target-saved),pct=target>0?Math.min(100,saved/target*100):0;let calc=`<strong>Progress:</strong> ${pct.toFixed(0)}% · ${fmt(saved)} of ${fmt(target)}<br><strong>Remaining:</strong> ${fmt(rem)}<br>`;if(monthly>0)calc+=`<strong>At ${fmt(monthly)}/mo:</strong> ${Math.ceil(rem/monthly)} months to go`;if(dateVal){const diff=Math.round((new Date(dateVal)-new Date())/(30*86400000));calc+=`<br><strong>Target date:</strong> ${new Date(dateVal).toLocaleDateString('en-US',{month:'long',year:'numeric'})} (${diff>0?diff+' months away':'passed'})`;if(monthly>0&&diff>0)calc+=`<br><strong>Required/mo:</strong> ${fmt(rem/diff)}`;}const el=document.getElementById('editGoalCalc');if(el)el.innerHTML=calc;}
 function saveEditGoal(){const g=state.goals.find(x=>x.id===_editingGoalId);if(!g)return;g.name=document.getElementById('editGoalName').value.trim()||g.name;g.emoji=document.getElementById('editGoalEmoji').value.trim()||'🎯';g.type=document.getElementById('editGoalType').value;g.target=parseFloat(document.getElementById('editGoalTarget').value)||0;g.saved=parseFloat(document.getElementById('editGoalSaved').value)||0;g.monthlyContribution=parseFloat(document.getElementById('editGoalMonthly').value)||0;g.category=document.getElementById('editGoalCategory').value||null;g.targetDate=document.getElementById('editGoalDate').value;saveToStorage();closeModal('editGoalModal');showToast(`Goal "${g.name}" updated!`,'success');renderPage();}
-function deleteGoalFromModal(){if(!confirm('Remove this goal?'))return;state.goals=state.goals.filter(g=>g.id!==_editingGoalId);closeModal('editGoalModal');saveToStorage();showToast('Goal removed','info');renderPage();}
-function deleteGoal(id){if(!confirm('Remove this goal?'))return;state.goals=state.goals.filter(g=>g.id!==id);saveToStorage();showToast('Goal removed','info');renderPage();}
+function deleteGoalFromModal(){showConfirm('Remove Goal','Remove this goal? This cannot be undone.',()=>{state.goals=state.goals.filter(g=>g.id!==_editingGoalId);closeModal('editGoalModal');saveToStorage();showToast('Goal removed','info');renderPage();});}
+function deleteGoal(id){showConfirm('Remove Goal','Remove this goal? This cannot be undone.',()=>{state.goals=state.goals.filter(g=>g.id!==id);saveToStorage();showToast('Goal removed','info');renderPage();});}
 
 // ════ REPORTS ════
 function buildReportRangeBar(){const ranges=['month','quarter','year','all'];const labels={month:'This Month',quarter:'3 Months',year:'12 Months',all:'All Time'};return`<div class="report-range-bar">${ranges.map(r=>`<button class="range-btn ${state.reportRange===r?'active':''}" onclick="state.reportRange='${r}';renderPage()">${labels[r]}</button>`).join('')}<div style="margin-left:auto;font-size:12px;color:var(--text-muted)">${getReportRangeLabel()}</div></div>`;}
@@ -3332,10 +3356,11 @@ function addAccount(){
   renderPage();
 }
 function deleteAccount(id){
-  if(!confirm('Delete this account and all its transactions?'))return;
-  state.accounts=state.accounts.filter(a=>a.id!==id);
-  state.transactions=state.transactions.filter(t=>t.account!==id&&t.toAccount!==id);
-  syncCCPaymentCategories();saveToStorage();showToast('Account deleted','info');renderPage();
+  showConfirm('Delete Account','Delete this account and all its transactions? This cannot be undone.',()=>{
+    state.accounts=state.accounts.filter(a=>a.id!==id);
+    state.transactions=state.transactions.filter(t=>t.account!==id&&t.toAccount!==id);
+    syncCCPaymentCategories();saveToStorage();showToast('Account deleted','info');renderPage();
+  });
 }
 let _editingAccountId=null;
 function editAccountModal(id){
@@ -3364,10 +3389,11 @@ function saveEditAccount(){
   showToast(`"${acc.name}" updated!`,'success');renderPage();
 }
 function deleteAccountFromModal(){
-  if(!confirm('Delete this account and all its transactions?'))return;
-  state.accounts=state.accounts.filter(a=>a.id!==_editingAccountId);
-  state.transactions=state.transactions.filter(t=>t.account!==_editingAccountId&&t.toAccount!==_editingAccountId);
-  syncCCPaymentCategories();closeModal('editAccountModal');saveToStorage();showToast('Account deleted','info');renderPage();
+  showConfirm('Delete Account','Delete this account and all its transactions? This cannot be undone.',()=>{
+    state.accounts=state.accounts.filter(a=>a.id!==_editingAccountId);
+    state.transactions=state.transactions.filter(t=>t.account!==_editingAccountId&&t.toAccount!==_editingAccountId);
+    syncCCPaymentCategories();closeModal('editAccountModal');saveToStorage();showToast('Account deleted','info');renderPage();
+  });
 }
 
 // ── BACKUP & EXPORT ──
@@ -3380,7 +3406,7 @@ function exportFullBackup(){
 }
 function importFullBackup(event){
   const file=event.target.files[0];if(!file)return;
-  if(!confirm(`Restore from "${file.name}"? This replaces all current data.`)){event.target.value='';return;}
+  showConfirm('Restore Backup',`Restore from "${file.name}"? This will replace all current data.`,()=>{
   const reader=new FileReader();
   reader.onload=e=>{
     try{
@@ -3399,6 +3425,7 @@ function importFullBackup(event){
     }catch(err){showToast('Restore failed: '+err.message,'error');}
   };
   reader.readAsText(file);event.target.value='';
+  });
 }
 function exportToExcel(){
   if(typeof XLSX==='undefined'){showToast('XLSX library not loaded','error');return;}
@@ -3418,11 +3445,12 @@ function exportToExcel(){
   XLSX.writeFile(wb,`${state.budgetName.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast('Exported to Excel! 📥','success');
 }
-function loadSampleData(){if(!confirm('Replace all data with sample data?'))return;seedDemo();syncCCPaymentCategories();showToast('Sample data loaded!','success');renderPage();}
+function loadSampleData(){showConfirm('Load Sample Data','Replace all current data with sample data?',()=>{seedDemo();syncCCPaymentCategories();showToast('Sample data loaded!','success');renderPage();});}
 function resetBudget(){
-  if(!confirm('Reset EVERYTHING? This cannot be undone.'))return;
-  state.accounts=[];state.categoryGroups=[];state.transactions=[];state.goals=[];state.collapsedGroups=[];state.scheduledTxs=[];state.payees=[];state.netWorthHistory={};state.selectedTxIds=new Set();state.ccPaymentGroupId=null;state.ccCategoryMap={};state.snoozedCategories={};
-  saveToStorage();showToast('Reset complete','info');renderPage();
+  showConfirm('Reset Everything','This will permanently delete all your accounts, transactions, and budget data. This cannot be undone.',()=>{
+    state.accounts=[];state.categoryGroups=[];state.transactions=[];state.goals=[];state.collapsedGroups=[];state.scheduledTxs=[];state.payees=[];state.netWorthHistory={};state.selectedTxIds=new Set();state.ccPaymentGroupId=null;state.ccCategoryMap={};state.snoozedCategories={};
+    saveToStorage();showToast('Reset complete','info');renderPage();
+  });
 }
 
 
@@ -3509,7 +3537,7 @@ function skipScheduled(id){
   s.nextDate=d.toISOString().slice(0,10);
   saveToStorage();showToast('Skipped','info');renderPage();
 }
-function deleteScheduled(id){if(!confirm('Delete this schedule?'))return;state.scheduledTxs=state.scheduledTxs.filter(x=>x.id!==id);saveToStorage();showToast('Deleted','info');renderPage();}
+function deleteScheduled(id){showConfirm('Delete Schedule','Delete this scheduled transaction? This cannot be undone.',()=>{state.scheduledTxs=state.scheduledTxs.filter(x=>x.id!==id);saveToStorage();showToast('Schedule deleted','info');renderPage();});}
 
 // ════ PAYEE / CONTACT MANAGER ════
 function renderPayeesPage(){return renderPayeesPageNew();}
@@ -3617,13 +3645,15 @@ function saveEditPayee(){
   saveToStorage();closeModal('editPayeeModal');showToast(`"${p.name}" updated!`,'success');renderPage();
 }
 function deletePayeeFromModal(){
-  if(!confirm('Delete this payee? Transactions using this payee name will not be affected.'))return;
-  state.payees=state.payees.filter(x=>x.id!==_editingPayeeId);
-  closeModal('editPayeeModal');saveToStorage();showToast('Payee deleted','info');renderPage();
+  showConfirm('Delete Payee','Delete this payee? Your existing transactions will not be affected.',()=>{
+    state.payees=state.payees.filter(x=>x.id!==_editingPayeeId);
+    closeModal('editPayeeModal');saveToStorage();showToast('Payee deleted','info');renderPage();
+  });
 }
 function deletePayee(id){
-  if(!confirm('Delete this payee? Transactions using this payee name will not be affected.'))return;
-  state.payees=state.payees.filter(x=>x.id!==id);saveToStorage();showToast('Payee deleted','info');renderPage();
+  showConfirm('Delete Payee','Delete this payee? Your existing transactions will not be affected.',()=>{
+    state.payees=state.payees.filter(x=>x.id!==id);saveToStorage();showToast('Payee deleted','info');renderPage();
+  });
 }
 function removePayeeMemory(name){
   const idx=state.payees.findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
@@ -3757,9 +3787,15 @@ async function afterAuth(){
 
 async function loadProfile(){
   if(!_supabase||!_currentUser)return;
+  // Load locally-saved avatar first so UI isn't blank while Supabase loads
+  try{const local=localStorage.getItem('budgety_avatar');if(local)_userProfile.avatarUrl=local;}catch(_){}
   try{
     const{data}=await _supabase.from('profiles').select('*').eq('id',_currentUser.id).single();
-    if(data){_userProfile.displayName=data.display_name||_currentUser.email.split('@')[0];_userProfile.avatarUrl=data.avatar_url||'';}
+    if(data){
+      _userProfile.displayName=data.display_name||_currentUser.email.split('@')[0];
+      // Prefer Supabase URL over local if available
+      if(data.avatar_url)_userProfile.avatarUrl=data.avatar_url;
+    }
     else{_userProfile.displayName=_currentUser.user_metadata?.display_name||_currentUser.email.split('@')[0];}
   }catch(e){_userProfile.displayName=_currentUser.email.split('@')[0];}
   updateTopbarAvatar();
@@ -3838,20 +3874,44 @@ async function saveProfile(){
 function triggerAvatarUpload(){document.getElementById('avatarFileInput')?.click();}
 async function handleAvatarUpload(input){
   const file=input.files?.[0];if(!file)return;
-  if(file.size>2*1024*1024){showToast('Image must be under 2 MB','error');return;}
-  if(!_supabase||!_currentUser){showToast('Sign in to upload a profile photo','error');return;}
-  showToast('Uploading photo…','info');
-  try{
-    const ext=file.name.split('.').pop();
-    const path=`avatars/${_currentUser.id}.${ext}`;
-    const{error}=await _supabase.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
-    if(error)throw error;
-    const{data}=_supabase.storage.from('avatars').getPublicUrl(path);
-    _userProfile.avatarUrl=data.publicUrl+'?t='+Date.now();
-    await upsertProfile(_userProfile.displayName,_userProfile.avatarUrl);
-    updateTopbarAvatar();populateProfileModal();
+  if(file.size>5*1024*1024){showToast('Image must be under 5 MB','error');return;}
+
+  // ── Step 1: read locally and update UI immediately ──
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const dataUrl=e.target.result;
+
+    // Update in-memory profile
+    _userProfile.avatarUrl=dataUrl;
+
+    // Persist locally so it survives refresh
+    try{localStorage.setItem('budgety_avatar',dataUrl);}catch(_){}
+
+    // Refresh all avatar spots in the UI
+    updateTopbarAvatar();
+    populateProfileModal();
     showToast('Photo updated! 📸','success');
-  }catch(e){showToast('Upload failed: '+(e.message||e),'error');}
+
+    // ── Step 2: also push to Supabase in the background (optional) ──
+    if(_supabase&&_currentUser){
+      try{
+        const ext=file.name.split('.').pop()||'jpg';
+        const path=`${_currentUser.id}/avatar.${ext}`;
+        const{error}=await _supabase.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+        if(!error){
+          const{data}=_supabase.storage.from('avatars').getPublicUrl(path);
+          const cloudUrl=data.publicUrl+'?t='+Date.now();
+          _userProfile.avatarUrl=cloudUrl;
+          try{localStorage.setItem('budgety_avatar',cloudUrl);}catch(_){}
+          await upsertProfile(_userProfile.displayName,cloudUrl);
+          updateTopbarAvatar();populateProfileModal();
+        }
+      }catch(_){/* cloud upload failed silently — local copy already saved */}
+    }
+  };
+  reader.readAsDataURL(file);
+  // Reset input so same file can be picked again
+  input.value='';
 }
 
 async function syncToCloud(){
