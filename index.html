@@ -253,6 +253,27 @@
         /* Auth Field Transitions */
         .auth-slider { display:flex; width:200%; transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .auth-slide { width:50%; padding:0 60px; display:flex; flex-direction:column; justify-content:center; }
+
+        /* Loading States & Haptics */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        .btn-loading .btn-text { visibility: hidden; }
+        .btn-loading .spinner { display: block; position: absolute; left: 50%; top: 50%; margin-left: -9px; margin-top: -9px; }
+        .btn-loading { pointer-events: none; opacity: 0.8; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        
+        button:active { transform: scale(0.98); }
+
+        .auth-error-text { color: var(--red); font-size: 12px; font-weight: 700; text-align: center; margin-top: -20px; margin-bottom: 20px; opacity: 0; transform: translateY(-4px); transition: all 0.3s ease; pointer-events: none; }
+        .auth-error-text.visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 
@@ -295,7 +316,11 @@
                             <div class="field-group"><label class="field-label">Password</label><input type="password" id="signin-pass" placeholder="••••••••" style="margin-bottom:0;"></div>
                         </div>
 
-                        <button class="primary" onclick="handleAuthAction('signin')" style="margin-bottom:32px;">Sign In</button>
+                        <button class="primary" id="signin-btn" onclick="handleAuthAction('signin')" style="margin-bottom:32px; position:relative;">
+                            <span class="btn-text">Sign In</span>
+                            <div class="spinner"></div>
+                        </button>
+                        <div id="signin-error" class="auth-error-text"></div>
 
                         <p style="text-align:center;font-size:14px;color:var(--text-secondary);font-weight:600;margin-bottom:24px;">
                             Don't have an account? <a href="#" onclick="slideAuth('signup')" style="color:var(--accent);text-decoration:none;font-weight:800;margin-left:4px;">Sign up</a>
@@ -314,13 +339,20 @@
                             <div class="field-group"><label class="field-label">Password</label><input type="password" id="signup-pass" placeholder="••••••••" style="margin-bottom:0;"></div>
                         </div>
 
-                        <button class="primary" onclick="handleAuthAction('signup')" style="margin-bottom:16px;">Create Account</button>
+                        <button class="primary" id="signup-btn" onclick="handleAuthAction('signup')" style="margin-bottom:16px; position:relative;">
+                            <span class="btn-text">Create Account</span>
+                            <div class="spinner"></div>
+                        </button>
+                        <div id="signup-error" class="auth-error-text"></div>
 
                         <p style="text-align:center;font-size:14px;color:var(--text-secondary);font-weight:600;">
                             Already have an account? <a href="#" onclick="slideAuth('signin')" style="color:var(--accent);text-decoration:none;font-weight:800;margin-left:4px;">Sign in</a>
                         </p>
-                    </div>
-    </div>
+                    </div> <!-- end signup slide -->
+                </div> <!-- end slider -->
+            </div> <!-- end right side -->
+        </div> <!-- end main card -->
+    </div> <!-- end auth-screen -->
 
     <!-- Welcome Screen (Setup) -->
     <div id="welcome-screen" class="hidden" style="position:fixed;inset:0;background:var(--bg-app);z-index:8000;display:flex;align-items:center;justify-content:center;">
@@ -2501,11 +2533,14 @@
             
         return publicUrl;
     }
-    function handleSignOut() { 
-        if(_supabase) _supabase.auth.signOut();
-        state=JSON.parse(JSON.stringify(DEFAULT_STATE)); 
+    async function handleSignOut() { 
+        if(_supabase) await _supabase.auth.signOut();
+        _currentUser = null;
+        _isGuest = true;
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE)); 
         localStorage.removeItem(STORAGE_KEY); 
-        _aiMessages=[]; 
+        _aiMessages = []; 
+        closeModal();
         init(); 
     }
 
@@ -2517,14 +2552,24 @@
     async function handleAuthAction(type) {
         const isSignIn = type === 'signin';
         const prefix = isSignIn ? 'signin' : 'signup';
+        const btn = document.getElementById(`${prefix}-btn`);
         const email = document.getElementById(`${prefix}-email`).value;
         const pass = document.getElementById(`${prefix}-pass`).value;
         const name = !isSignIn ? document.getElementById('signup-name').value : null;
 
-        if(!email || !pass) { showToast('Email and password required'); return; }
+        if(!email || !pass) { 
+            showToast('Email and password required'); 
+            btn?.classList.add('shake');
+            setTimeout(() => btn?.classList.remove('shake'), 400);
+            return; 
+        }
         
         try {
-            showToast(isSignIn ? 'Signing in...' : 'Creating account...');
+            const errorEl = document.getElementById(`${prefix}-error`);
+            if(errorEl) errorEl.classList.remove('visible');
+
+            if(btn) btn.classList.add('btn-loading');
+
             const { data, error } = isSignIn 
                 ? await _supabase.auth.signInWithPassword({ email, password: pass })
                 : await _supabase.auth.signUp({ 
@@ -2534,16 +2579,58 @@
                   });
             
             if(error) throw error;
+            
+            if(!isSignIn) {
+                // Method 1: The Client-Side Identity Trick
+                // If user exists but identities is empty, it's a duplicate.
+                if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+                    throw new Error('Email already in use. Please sign in.');
+                }
+                
+                // If session is null but identities exist, it's a NEW user 
+                // but email confirmation is required.
+                if (!data.session) {
+                    showToast('Verification link sent! Check your email.', 6000);
+                    if(btn) {
+                        btn.classList.remove('btn-loading');
+                        const text = isSignIn ? 'Sign In' : 'Create Account';
+                        btn.innerHTML = `<span class="btn-text">${text}</span>`;
+                    }
+                    return; // Stop here, don't boot the app yet
+                }
+            }
+
             _currentUser = data.user;
             _isGuest = false;
             
+            // 1. First, try to load any existing data for this user
+            await afterAuth();
+
+            // 2. If it was a signup and they still have default/blank state, 
+            // then we initialize and save their new profile.
             if(!isSignIn && name) {
-                if(!state.profile) state.profile = {};
-                state.profile.name = name;
-                await saveToSupabase();
+                // If loadFromSupabase didn't find a name, set the one from the form
+                if(!state.profile || state.profile.name === 'Guest User') {
+                    if(!state.profile) state.profile = {};
+                    state.profile.name = name;
+                    await saveToSupabase();
+                }
             }
-            afterAuth();
-        } catch(e) { showToast(e.message); }
+        } catch(e) { 
+            if(btn) {
+                btn.classList.remove('btn-loading');
+                btn.classList.add('shake');
+                setTimeout(() => btn.classList.remove('shake'), 400);
+            }
+            const errorEl = document.getElementById(`${prefix}-error`);
+            if(errorEl) {
+                let msg = e.message;
+                if(msg.includes('invalid_credentials')) msg = 'Invalid email or password';
+                if(msg.includes('already registered') || msg.includes('User already exists')) msg = 'Email already in use';
+                errorEl.textContent = msg;
+                errorEl.classList.add('visible');
+            }
+        }
     }
     async function loginWithGoogle() {
         try {
@@ -2679,8 +2766,15 @@
                 await loadFromSupabase();
                 startApp();
                 return;
+            } else {
+                _currentUser = null;
+                _isGuest = true;
             }
         }
+
+        // Reset UI states
+        document.querySelectorAll('.primary').forEach(b => b.classList.remove('btn-loading', 'shake'));
+        document.querySelectorAll('.auth-error-text').forEach(e => e.classList.remove('visible'));
 
         // Show auth screen if no session
         document.getElementById('app-shell').classList.add('hidden');
