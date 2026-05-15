@@ -234,6 +234,30 @@
         @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
         .typing-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1.2s infinite; }
 
+        /* Professional Dot Typing Animation */
+        .dot-typing {
+            position: relative;
+            left: -9999px;
+            width: 7px;
+            height: 7px;
+            border-radius: 5px;
+            background-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent);
+            animation: dot-typing 1.5s infinite linear;
+            margin-left: 10px;
+            display: inline-block;
+        }
+        @keyframes dot-typing {
+            0% { box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
+            16.667% { box-shadow: 9980px -8px 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
+            33.333% { box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
+            50% { box-shadow: 9980px 0 0 0 var(--accent), 9997px -8px 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
+            66.667% { box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
+            83.333% { box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px -8px 0 0 var(--accent); }
+            100% { box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
+        }
+
         /* Color swatches */
         .color-swatch { width:32px; height:32px; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:all .15s; }
         .color-swatch.selected { border-color:var(--text-primary); transform:scale(1.15); }
@@ -274,6 +298,98 @@
 
         .auth-error-text { color: var(--red); font-size: 12px; font-weight: 700; text-align: center; margin-top: -20px; margin-bottom: 20px; opacity: 0; transform: translateY(-4px); transition: all 0.3s ease; pointer-events: none; }
         .auth-error-text.visible { opacity: 1; transform: translateY(0); }
+
+        /* Profile Badge */
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .profile-badge:hover {
+            border-color: var(--accent);
+            background: var(--bg-nav-active);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .profile-badge:active {
+            transform: scale(0.98);
+        }
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .profile-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+        .profile-status {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-top: 2px;
+        }
+
+        /* Profile Modal Modernization */
+        .modal-section-header {
+            font-size: 11px;
+            font-weight: 800;
+            color: #AAA;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin: 24px 0 12px;
+        }
+        .modal-section-header:first-child { margin-top: 0; }
+        .modal-card {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .modal-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .modal-list-item:last-child { border-bottom: none; }
+        .profile-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 0 28px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .danger-text {
+            color: var(--red);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .danger-text:hover { opacity: 0.8; }
     </style>
 </head>
 
@@ -414,16 +530,15 @@
         <div style="margin-top:auto;">
             <div class="nav-item" onclick="startGuidedTour()"><i data-lucide="help-circle" style="width:18px;height:18px;color:var(--accent);"></i> Quick Tour</div>
             <div class="nav-item" data-page="settings" onclick="navigateTo('settings')"><i data-lucide="settings" style="width:18px;height:18px;"></i> Settings</div>
-            <div style="background:rgba(255,255,255,.5);border:1px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;margin-top:8px;" onclick="openProfileModal()">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div id="user-avatar" style="width:40px;height:40px;border-radius:12px;background:#9CA3AF;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;overflow:hidden;">
-                        <span id="avatar-text">GU</span>
-                    </div>
-                    <div style="min-width:0;">
-                        <p id="user-name-display" style="font-size:14px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Guest User</p>
-                        <p id="sync-status" style="font-size:10px;font-weight:800;color:#AAA;text-transform:uppercase;letter-spacing:1px;">Offline Mode</p>
-                    </div>
+            <div class="profile-badge" onclick="openProfileModal()">
+                <div id="user-avatar" style="width:40px;height:40px;border-radius:12px;background:#9CA3AF;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;overflow:hidden;flex-shrink:0;">
+                    <span id="avatar-text">GU</span>
                 </div>
+                <div class="profile-info">
+                    <p id="user-name-display" class="profile-name">Guest User</p>
+                    <p id="sync-status" class="profile-status">Guest Account</p>
+                </div>
+                <i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--text-secondary);opacity:0.5;"></i>
             </div>
         </div>
     </aside>
@@ -465,16 +580,15 @@
     <!-- Modal Overlay -->
     <div id="modal-overlay" class="overlay hidden" onclick="if(event.target===this)closeModal()">
         <!-- Profile Modal -->
-        <div id="modal-profile" class="modal hidden">
+        <div id="modal-profile" class="modal hidden" style="max-width:680px;">
             <div class="modal-header">
-                <div class="modal-icon" style="background:#F0F4FF;">👤</div>
-                <div><h3 class="modal-title">Profile</h3><p class="modal-subtitle">Manage your account</p></div>
+                <div><h3 class="modal-title">Account Settings</h3><p class="modal-subtitle">Manage your personal identity and account security.</p></div>
                 <button class="modal-close" onclick="closeModal()"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
             </div>
             <div class="modal-body" id="profile-body"></div>
             <div class="modal-footer">
-                <button class="primary" onclick="saveProfile()">Save Profile</button>
-                <button class="secondary" onclick="handleSignOut()">🚪 Sign Out</button>
+                <button class="primary" onclick="saveProfile()">Save Changes</button>
+                <button class="secondary" onclick="handleSignOut()">Sign Out</button>
             </div>
         </div>
         <!-- Confirm Modal -->
@@ -487,16 +601,7 @@
                 <button class="secondary" onclick="closeModal()">Cancel</button>
             </div>
         </div>
-        <!-- Auto-Assign Modal -->
-        <div id="modal-autoassign" class="modal hidden">
-            <div class="modal-header">
-                <div class="modal-icon" style="background:#F0FFF4;">🤖</div>
-                <div><h3 class="modal-title">Auto-Assign</h3><p class="modal-subtitle">Distribute your unassigned funds</p></div>
-                <button class="modal-close" onclick="closeModal()"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
-            </div>
-            <div class="modal-body" id="autoassign-body"></div>
-            <div class="modal-footer"><button class="primary" id="autoassign-go">Apply</button><button class="secondary" onclick="closeModal()">Cancel</button></div>
-        </div>
+        <!-- (modal-autoassign removed — replaced by Smart Assign popover) -->
         <!-- Quick Setup Modal -->
         <div id="modal-quicksetup" class="modal hidden">
             <div class="modal-header">
@@ -538,9 +643,17 @@
     const THEME_KEY = 'mb_theme';
 
     let _supabase = null, _currentUser = null, _isGuest = true;
-    let _aiMessages = [];
+    
+    // ══════════════════════════════════════════════════════════════
+    //  GEMINI AI INTEGRATION
+    // ══════════════════════════════════════════════════════════════
+    const GEMINI_API_KEY = 'AIzaSyBvf3ZMFWTK17CNur6nSRUJBggDzHdnyCA';
+    const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent';
+    let _aiMessages = []; 
+    let _aiLoading = false;
     let _chartInstances = {};
     let _activePanelId = null;
+
 
     // ── Utility ──
     const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
@@ -653,8 +766,12 @@
             const { data: profileData } = await _supabase.from('profiles').select('*').eq('id', _currentUser.id).single();
             if(profileData) {
                 if(!state.profile) state.profile = {};
-                state.profile.name = profileData.display_name || state.profile.name;
-                state.profile.photo = profileData.avatar_url || state.profile.photo;
+                state.profile.name = profileData.display_name || _currentUser.user_metadata?.display_name || state.profile.name;
+                state.profile.photo = profileData.avatar_url || _currentUser.user_metadata?.avatar_url || state.profile.photo;
+            } else if (_currentUser.user_metadata) {
+                if(!state.profile) state.profile = {};
+                state.profile.name = _currentUser.user_metadata.display_name || state.profile.name;
+                state.profile.photo = _currentUser.user_metadata.avatar_url || state.profile.photo;
             }
         } catch(e) { console.error('Supabase load failed', e); showToast('Cloud sync failed'); }
     }
@@ -1068,8 +1185,8 @@
         
         if (nameEl) nameEl.textContent = state.profile?.name || 'Guest User';
         if (statusEl) {
-            statusEl.textContent = _isGuest ? 'Offline Mode' : 'Cloud Sync Active';
-            statusEl.style.color = _isGuest ? '#AAA' : 'var(--green)';
+            statusEl.textContent = _isGuest ? 'Guest Account' : (_currentUser?.email || 'Cloud Sync Active');
+            statusEl.style.color = ''; 
         }
         if (avatarEl) {
             if (state.profile?.photo) {
@@ -1137,14 +1254,22 @@
     function renderSidebar() {
         document.getElementById('sidebar-budget-name').textContent = state.budgetName || 'Budgety';
         const list = document.getElementById('sidebar-accounts-list');
-        list.innerHTML = state.accounts.map(a => {
+        
+        let html = `<div style="padding: 16px 14px 8px; font-size: 10px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.6;">Accounts</div>`;
+        
+        html += state.accounts.map(a => {
             const b = getAccountBalance(a.id);
-            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-radius:8px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--bg-nav-active)'" onmouseout="this.style.background='transparent'" onclick="navigateTo('accounts');selectAccount('${a.id}')">
-                <span style="font-size:12px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${a.name}</span>
-                <span class="tabular" style="font-size:10px;font-weight:700;white-space:nowrap;color:${b<0?'var(--red)':'var(--text-secondary)'};">${fmtAmt(b)}</span>
+            const accColor = a.color || '#4B5EFF';
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .2s ease;margin-bottom:2px;" onmouseover="this.style.background='var(--bg-nav-active)'" onmouseout="this.style.background='transparent'" onclick="navigateTo('accounts');selectAccount('${a.id}')">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                    <div style="width:4px;height:12px;border-radius:2px;background:${accColor};opacity:0.8;"></div>
+                    <span style="font-size:13px;font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${a.name}</span>
+                </div>
+                <span class="tabular" style="font-size:11px;font-weight:700;white-space:nowrap;color:${b<0?'var(--red)':'var(--text-secondary)'};opacity:0.9;">${fmtAmt(b)}</span>
             </div>`;
         }).join('');
-        document.getElementById('user-name-display').textContent = state.profile?.name || 'Guest User';
+        
+        list.innerHTML = html;
     }
 
     function changeMonth(delta) {
@@ -1172,6 +1297,14 @@
         const topGoal = state.goals.length ? state.goals[goalIdx] : null;
         const goalPct = topGoal ? Math.min(100, Math.round((topGoal.saved||0)/(topGoal.target||1)*100)) : 0;
 
+        // Underfunded category inline preview
+        const _ufCats = [];
+        state.categoryGroups.forEach(g => g.categories.forEach(c => { const n=getCatNeedsThisMonth(c); if(n>0) _ufCats.push({name:c.name,needs:n}); }));
+        _ufCats.sort((a,b)=>b.needs-a.needs);
+        const _ufPreview = _ufCats.slice(0,3).map(c=>`${c.name} +${fmtAmt(c.needs)}`).join(' · ') + (_ufCats.length>3 ? ` · +${_ufCats.length-3} more` : '');
+        const _canFullFund = rta >= uf && uf > 0;
+        const _canPartial = rta > 0 && rta < uf;
+
         // Record net worth snapshot
         state.netWorthHistory[monthKey(state.currentMonth,state.currentYear)] = nw;
 
@@ -1181,7 +1314,7 @@
             <div class="rta-card">
                 <div class="rta-pill tabular" style="background:${rta<0?'var(--red)':'var(--green)'};">${fmtAmt(rta)}</div>
                 <div style="flex:1;"><p style="font-size:11px;font-weight:800;color:#AAA;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Ready to Assign</p><p style="font-size:12px;color:#888;">Money waiting for a job.</p></div>
-                <button onclick="openAutoAssign()" style="font-size:13px;font-weight:800;color:var(--accent);padding:8px 16px;border:1.5px solid var(--accent);border-radius:12px;background:transparent;cursor:pointer;">Auto-Assign</button>
+                <button id="smart-assign-btn" onclick="openSmartAssign(this)" style="font-size:13px;font-weight:800;color:var(--accent);padding:8px 16px;border:1.5px solid var(--accent);border-radius:12px;background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;"></i>Smart Assign</button>
             </div>
             <div style="background:#1C1C2C;color:white;padding:24px;border-radius:20px;display:flex;flex-direction:column;justify-content:space-between;">
                 <div style="display:flex;justify-content:space-between;"><p style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;">Age of Money</p><i data-lucide="hourglass" style="width:14px;height:14px;opacity:.5;"></i></div>
@@ -1213,12 +1346,18 @@
                     <p style="font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;">Total Assets</p>
                     <p class="tabular" style="font-size:22px;font-weight:900;">${fmtAmt(ta)}</p>
                 </div>
-                <div style="background:${ufCount>0?'rgba(251,191,36,.1)':'rgba(34,197,94,.08)'};border:1.5px solid ${ufCount>0?'rgba(251,191,36,.35)':'rgba(34,197,94,.25)'};padding:20px;border-radius:20px;grid-column:span 2;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="width:40px;height:40px;border-radius:12px;background:${ufCount>0?'#FBBF24':'var(--green)'};display:flex;align-items:center;justify-content:center;font-size:18px;">${ufCount>0?'⚠️':'✓'}</div>
-                        <div><p style="font-size:14px;font-weight:800;color:${ufCount>0?'#D97706':'var(--green)'}">${ufCount>0?ufCount+' Underfunded':'All categories funded'}</p><p style="font-size:12px;color:var(--text-secondary);">${ufCount>0?'Need '+fmtAmt(uf)+' more to meet targets.':'Great job keeping on track!'}</p></div>
+                <div style="background:${ufCount>0?'rgba(251,191,36,.1)':'rgba(34,197,94,.08)'};border:1.5px solid ${ufCount>0?'rgba(251,191,36,.35)':'rgba(34,197,94,.25)'};padding:20px;border-radius:20px;grid-column:span 2;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:40px;height:40px;border-radius:12px;background:${ufCount>0?'#FBBF24':'var(--green)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${ufCount>0?'⚠️':'✓'}</div>
+                            <div>
+                                <p style="font-size:14px;font-weight:800;color:${ufCount>0?'#D97706':'var(--green)'}">${ufCount>0?ufCount+' categories underfunded':'All categories funded'}</p>
+                                <p style="font-size:12px;color:var(--text-secondary);">${ufCount>0?'Need '+fmtAmt(uf)+' to meet all targets' + (_canPartial?' · Only '+fmtAmt(rta)+' available':_canFullFund?'':' · No funds available'):'Great job keeping on track!'}</p>
+                            </div>
+                        </div>
+                        ${ufCount>0 ? `<button onclick="applySmartAssign('underfunded')" style="padding:8px 18px;background:${_canFullFund?'#FBBF24':'rgba(239,68,68,.12)'};color:${_canFullFund?'#92400E':'var(--red)'};font-weight:800;font-size:12px;border:none;border-radius:10px;cursor:pointer;flex-shrink:0;">${_canFullFund?'Fund All':_canPartial?'Partial Fund':'No Funds'}</button>` : ''}
                     </div>
-                    ${ufCount>0?`<button onclick="fundAllUnderfunded()" style="padding:8px 16px;background:#FBBF24;color:#92400E;font-weight:800;font-size:12px;border:none;border-radius:10px;cursor:pointer;">Fund All</button>`:''}
+                    ${ufCount>0 && _ufPreview ? `<p style="font-size:11px;color:var(--text-secondary);margin-top:10px;padding-left:52px;line-height:1.6;">${_ufPreview}</p>` : ''}
                 </div>
             </div>
         </div>`;
@@ -1356,19 +1495,163 @@
         _goalCardIdx = (_goalCardIdx - 1 + state.goals.length) % state.goals.length;
         renderBudget();
     }
-    function fundAllUnderfunded() {
-        let remaining = getReadyToAssign();
-        state.categoryGroups.forEach(g=>g.categories.forEach(c=>{
-            const needs = getCatNeedsThisMonth(c);
-            if(needs>0 && remaining>0) {
-                const give = Math.min(needs, remaining);
-                const current = getCatMonthAssigned(c, state.currentMonth, state.currentYear);
-                setCatMonthAssigned(c, state.currentMonth, state.currentYear, current+give);
-                remaining -= give;
-            }
-        }));
-        save(); showToast('Underfunded categories funded!');
+    // ── Smart Assign System ──
+    let _smartConfirmCb = null;
+
+    function showSmartConfirm(title, msg, icon, onConfirm) {
+        const existing = document.getElementById('smart-confirm-toast');
+        if (existing) existing.remove();
+        _smartConfirmCb = onConfirm;
+        const el = document.createElement('div');
+        el.id = 'smart-confirm-toast';
+        el.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:20px 24px;box-shadow:0 16px 56px rgba(0,0,0,.22);z-index:3500;animation:fadeIn .2s;min-width:360px;max-width:500px;';
+        el.innerHTML = `
+            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+                <span style="font-size:24px;flex-shrink:0;">${icon}</span>
+                <div>
+                    <p style="font-size:15px;font-weight:900;color:var(--text-primary);margin-bottom:4px;">${title}</p>
+                    <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;">${msg}</p>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="executeSmartConfirm()" style="flex:1;padding:12px;background:var(--accent);color:white;border:none;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">Apply</button>
+                <button onclick="document.getElementById('smart-confirm-toast')?.remove()" style="padding:12px 20px;background:var(--bg-sidebar);color:var(--text-secondary);border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;">Cancel</button>
+            </div>`;
+        document.body.appendChild(el);
+        setTimeout(() => { if(document.getElementById('smart-confirm-toast')) el.remove(); }, 14000);
     }
+
+    function executeSmartConfirm() {
+        const cb = _smartConfirmCb; _smartConfirmCb = null;
+        document.getElementById('smart-confirm-toast')?.remove();
+        if (cb) cb();
+    }
+
+    function openSmartAssign(btnEl) {
+        const existing = document.getElementById('smart-assign-popover');
+        if (existing) { existing.remove(); return; }
+        const rta = getReadyToAssign();
+        const ufTotal = getUnderfundedTotal();
+        const ufCount = getUnderfundedCount();
+
+        let lm = state.currentMonth - 1, ly = state.currentYear;
+        if (lm < 0) { lm = 11; ly--; }
+        const lastMonthTotal = state.categoryGroups.reduce((s,g) => s + g.categories.reduce((cs,c) => cs + getCatMonthAssigned(c,lm,ly), 0), 0);
+
+        let avg3Total = 0, avg3Count = 0;
+        state.categoryGroups.forEach(g => g.categories.forEach(c => {
+            let sum = 0, mo = 0;
+            for (let i=1;i<=3;i++) { let m=state.currentMonth-i,y=state.currentYear; while(m<0){m+=12;y--;} const v=getCatMonthAssigned(c,m,y); if(v>0){sum+=v;mo++;} }
+            if (mo>0) { avg3Total += Math.round(sum/mo); avg3Count++; }
+        }));
+
+        const strategies = [
+            { mode:'underfunded', icon:'⚡', label:'Fund Underfunded', color:'var(--accent)', desc: ufCount>0 ? `Fill ${ufCount} ${ufCount===1?'category':'categories'} · needs ${fmtAmt(ufTotal)}${rta<ufTotal?' (partial: '+fmtAmt(rta)+' available)':''}` : 'All categories already funded', disabled: ufCount===0 },
+            { mode:'lastMonth',   icon:'📋', label:'Repeat Last Month', color:'#8B5CF6',     desc: lastMonthTotal>0 ? `Copy ${fmtAmt(lastMonthTotal)} from ${fmtMonthYear(lm,ly)}` : 'No assignments found last month', disabled: lastMonthTotal===0 },
+            { mode:'average3mo',  icon:'📊', label:'3-Month Average',   color:'#06B6D4',     desc: avg3Count>0 ? `Apply averages across ${avg3Count} categories · ~${fmtAmt(avg3Total)} total` : 'Not enough history yet', disabled: avg3Count===0 },
+            { mode:'clearAll',    icon:'🧹', label:'Clear This Month',  color:'var(--red)',  desc: 'Remove all current-month assignments and start fresh', disabled: false, danger:true }
+        ];
+
+        const pop = document.createElement('div');
+        pop.id = 'smart-assign-popover';
+        const rect = btnEl.getBoundingClientRect();
+        pop.style.cssText = `position:fixed;top:${rect.bottom+8}px;right:${window.innerWidth-rect.right}px;z-index:2500;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.18);width:330px;padding:8px;animation:fadeIn .15s ease-out;`;
+        pop.innerHTML = `
+            <div style="padding:10px 12px 8px;border-bottom:1px solid var(--border-light);margin-bottom:4px;">
+                <p style="font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;">Smart Assign</p>
+                <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${fmtAmt(rta)} ready to assign</p>
+            </div>
+            ${strategies.map(s => `
+            <div onclick="${s.disabled?'':"document.getElementById('smart-assign-popover')?.remove();applySmartAssign('" + s.mode + "')"}" 
+                 style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;cursor:${s.disabled?'default':'pointer'};opacity:${s.disabled?'0.38':'1'};transition:background .12s;"
+                 ${!s.disabled?`onmouseover="this.style.background='var(--bg-sidebar)'" onmouseout="this.style.background='transparent'"` : ''}>
+                <div style="width:38px;height:38px;border-radius:12px;background:${s.danger?'rgba(239,68,68,.1)':'var(--accent-light)'};display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">${s.icon}</div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:14px;font-weight:800;color:${s.danger?'var(--red)':'var(--text-primary)'}">${s.label}</p>
+                    <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;white-space:normal;line-height:1.4;">${s.desc}</p>
+                </div>
+            </div>`).join('')}`;
+        document.body.appendChild(pop);
+        lucide.createIcons();
+        setTimeout(() => {
+            document.addEventListener('mousedown', function _closePop(e) {
+                if (!pop.contains(e.target) && !btnEl.contains(e.target)) {
+                    pop.remove(); document.removeEventListener('mousedown', _closePop);
+                }
+            });
+        }, 10);
+    }
+
+    function applySmartAssign(mode) {
+        const rta = getReadyToAssign();
+        if (mode === 'underfunded') {
+            const ufTotal = getUnderfundedTotal();
+            const ufCount = getUnderfundedCount();
+            if (ufCount === 0) { showToast('🎉 All categories are already funded!'); return; }
+            const isPartial = rta < ufTotal;
+            const amtStr = isPartial ? fmtAmt(rta) : fmtAmt(ufTotal);
+            const msg = isPartial
+                ? `Only ${fmtAmt(rta)} is available. This will partially fund ${ufCount} categories (${fmtAmt(ufTotal - rta)} still needed after).`
+                : `Assign ${fmtAmt(ufTotal)} across ${ufCount} ${ufCount===1?'category':'categories'} to fully meet all targets.`;
+            showSmartConfirm(isPartial ? '⚡ Partially Fund' : '⚡ Fund Underfunded', msg, '⚡', () => {
+                let remaining = getReadyToAssign();
+                let funded = 0;
+                state.categoryGroups.forEach(g => g.categories.forEach(c => {
+                    const needs = getCatNeedsThisMonth(c);
+                    if (needs > 0 && remaining > 0) {
+                        const give = Math.min(needs, remaining);
+                        const cur = getCatMonthAssigned(c, state.currentMonth, state.currentYear);
+                        setCatMonthAssigned(c, state.currentMonth, state.currentYear, cur + give);
+                        remaining -= give; funded++;
+                    }
+                }));
+                save();
+                showToast(isPartial ? `⚡ Partially funded ${funded} categories — add more income to complete.` : `✅ All ${funded} categories funded!`);
+            });
+        }
+        else if (mode === 'lastMonth') {
+            let lm = state.currentMonth-1, ly = state.currentYear;
+            if (lm < 0) { lm = 11; ly--; }
+            let count = 0, total = 0;
+            state.categoryGroups.forEach(g => g.categories.forEach(c => { const v=getCatMonthAssigned(c,lm,ly); if(v>0){count++;total+=v;} }));
+            if (count === 0) { showToast('No assignments found from last month.'); return; }
+            showSmartConfirm('📋 Repeat Last Month', `Copy ${fmtAmt(total)} across ${count} categories from ${fmtMonthYear(lm,ly)}. Any existing assignments this month will be overwritten.`, '📋', () => {
+                state.categoryGroups.forEach(g => g.categories.forEach(c => {
+                    const v = getCatMonthAssigned(c,lm,ly);
+                    setCatMonthAssigned(c, state.currentMonth, state.currentYear, v);
+                }));
+                save(); showToast('📋 Last month\'s assignments applied!');
+            });
+        }
+        else if (mode === 'average3mo') {
+            const avgs = {}; let count = 0, total = 0;
+            state.categoryGroups.forEach(g => g.categories.forEach(c => {
+                let sum=0, mo=0;
+                for(let i=1;i<=3;i++){let m=state.currentMonth-i,y=state.currentYear;while(m<0){m+=12;y--;}const v=getCatMonthAssigned(c,m,y);if(v>0){sum+=v;mo++;}}
+                if(mo>0){const avg=Math.round(sum/mo);avgs[c.id]=avg;count++;total+=avg;}
+            }));
+            if (count === 0) { showToast('Not enough history yet. Keep budgeting for a few months!'); return; }
+            showSmartConfirm('📊 3-Month Average', `Apply historical averages to ${count} categories (~${fmtAmt(total)} total). Existing assignments this month will be overwritten.`, '📊', () => {
+                state.categoryGroups.forEach(g => g.categories.forEach(c => {
+                    if (avgs[c.id] != null) setCatMonthAssigned(c, state.currentMonth, state.currentYear, avgs[c.id]);
+                }));
+                save(); showToast('📊 3-month averages applied!');
+            });
+        }
+        else if (mode === 'clearAll') {
+            const ta = getTotalAssigned();
+            if (ta === 0) { showToast('Nothing to clear — this month has no assignments.'); return; }
+            showSmartConfirm('🧹 Clear This Month', `This will remove all ${fmtAmt(ta)} in assignments for ${fmtMonthYear(state.currentMonth, state.currentYear)} and return them to Ready to Assign.`, '🧹', () => {
+                state.categoryGroups.forEach(g => g.categories.forEach(c => {
+                    setCatMonthAssigned(c, state.currentMonth, state.currentYear, 0);
+                }));
+                save(); showToast('🧹 Month cleared — ready to reassign!');
+            });
+        }
+    }
+
+    // Keep as alias for any legacy calls
+    function fundAllUnderfunded() { applySmartAssign('underfunded'); }
 
     // ══════════════════════════════════════════════════════════════
     //  ACCOUNTS PAGE
@@ -1691,73 +1974,313 @@
     // ══════════════════════════════════════════════════════════════
     function renderAI() {
         const el = document.getElementById('page-ai');
-        const hasKey = state.settings?.geminiKey;
-        let html = `<div style="display:flex;flex-direction:column;height:calc(100vh - 240px);">
-            <div id="ai-chat" style="flex:1;overflow-y:auto;padding-right:16px;margin-bottom:16px;">`;
-        if (!_aiMessages.length) {
-            html += `<div style="text-align:center;padding:60px 20px;">
-                <div style="font-size:48px;margin-bottom:16px;">✨</div>
-                <h3 style="font-size:20px;font-weight:900;margin-bottom:8px;color:var(--text-primary);">AI Financial Advisor</h3>
-                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:32px;">${hasKey?'Ask me anything about your budget.':'Add your Gemini API key in Settings → Data to enable AI.'}</p>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
-                    ${['Analyse my spending this month','How am I doing with my goals?','Which categories am I overspending?','Give me a savings tip'].map(s=>`<button onclick="sendAISuggestion('${s}')" style="padding:10px 16px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">${s}</button>`).join('')}
+        const rta = getReadyToAssign();
+        const nw = getNetWorth();
+        
+        let html = `
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:32px;height:calc(100vh - 240px);">
+            <!-- Left: Chat Interface -->
+            <div style="display:flex;flex-direction:column;min-width:0;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.04);">
+                <!-- Chat Header -->
+                <div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg-sidebar);">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:8px;height:8px;border-radius:50%;background:${_isGuest?'#94A3B8':'var(--green)'};box-shadow:0 0 8px ${_isGuest?'#94A3B8':'var(--green)'};"></div>
+                        <span style="font-size:12px;font-weight:800;color:var(--text-primary);letter-spacing:0.3px;">${_isGuest?'GUEST MODE':'ADVISOR SESSION'}</span>
+                    </div>
+                    ${!_isGuest && _aiMessages.length ? `
+                    <button onclick="clearAIChat()" style="background:transparent;border:none;color:var(--text-secondary);font-size:11px;font-weight:800;display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 10px;border-radius:8px;transition:all .2s;" onmouseover="this.style.background='rgba(239,68,68,.08)';this.style.color='var(--red)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
+                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                        CLEAR CHAT
+                    </button>` : ''}
                 </div>
+                <div id="ai-chat" style="flex:1;overflow-y:auto;padding:24px;scroll-behavior:smooth;">`;
+                
+        if (_isGuest) {
+            html += `
+            <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+                <div style="width:64px;height:64px;background:var(--bg-sidebar);border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 4px 12px rgba(0,0,0,.03);">
+                    <i data-lucide="lock" style="width:28px;height:28px;color:var(--text-secondary);"></i>
+                </div>
+                <h3 style="font-size:20px;font-weight:900;color:var(--text-primary);margin-bottom:12px;">Cloud Connection Required</h3>
+                <p style="color:var(--text-secondary);font-size:14px;max-width:320px;line-height:1.6;margin-bottom:32px;">To provide accurate financial intelligence, the AI Advisor requires a secure account for data synchronization.</p>
+                <button onclick="handleSignOut()" class="primary" style="max-width:220px;padding:14px 24px;">Sign in to Unlock AI</button>
             </div>`;
+        } else if (!_aiMessages.length) {
+            html += `
+                <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+                    <div style="width:64px;height:64px;background:linear-gradient(135deg, var(--accent), #8B5CF6);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 8px 24px rgba(75,94,255,.25);">
+                        <i data-lucide="sparkles" style="width:32px;height:32px;color:white;"></i>
+                    </div>
+                    <h3 style="font-size:24px;font-weight:900;color:var(--text-primary);margin-bottom:12px;">Financial Intelligence</h3>
+                    <p style="color:var(--text-secondary);font-size:15px;max-width:400px;line-height:1.6;margin-bottom:32px;">I've analyzed your budget and accounts. Ask me for a deep dive into your spending, goal forecasting, or savings optimization.</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:500px;">
+                        ${['Analyse my spending','How are my goals?','Identify overspending','Suggest savings tips'].map(s=>`
+                            <button onclick="sendAISuggestion('${s}')" style="padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--bg-sidebar);color:var(--text-primary);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:10px;" onmouseover="this.style.borderColor='var(--accent)';this.style.background='var(--bg-card)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg-sidebar)'">
+                                <i data-lucide="message-square" style="width:14px;height:14px;color:var(--accent);"></i>
+                                ${s}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>`;
         } else {
             _aiMessages.forEach(m => {
-                if(m.role==='user') html += `<div style="display:flex;justify-content:flex-end;margin-bottom:16px;"><div style="background:var(--accent);color:white;padding:14px 18px;border-radius:18px 18px 4px 18px;font-size:14px;font-weight:600;max-width:75%;">${m.parts[0].text}</div></div>`;
-                else html += `<div style="display:flex;gap:12px;margin-bottom:16px;"><div style="width:36px;height:36px;border-radius:12px;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">🤖</div><div style="background:var(--bg-sidebar);color:var(--text-primary);padding:14px 18px;border-radius:18px 18px 18px 4px;font-size:14px;line-height:1.6;max-width:75%;">${(m.parts[0].text||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div></div>`;
+                const text = m.content || (m.parts && m.parts[0]?.text) || '';
+                if(m.role==='user') {
+                    html += `
+                    <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
+                        <div style="background:var(--accent);color:white;padding:16px 20px;border-radius:20px 20px 4px 20px;font-size:14px;font-weight:600;max-width:80%;box-shadow:0 4px 12px rgba(75,94,255,.2);">
+                            ${text}
+                        </div>
+                    </div>`;
+                } else {
+                    const formattedText = text
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/^### (.*$)/gm, '<h3 style="font-size:16px;font-weight:900;margin:16px 0 8px;color:var(--text-primary);">$1</h3>')
+                        .replace(/^## (.*$)/gm, '<h2 style="font-size:18px;font-weight:900;margin:20px 0 10px;color:var(--text-primary);">$1</h2>')
+                        .replace(/^[\*-] (.*$)/gm, '<li style="margin-left:20px;margin-bottom:4px;">$1</li>')
+                        .replace(/\n/g, '<br>');
+
+                    html += `
+                    <div style="display:flex;gap:16px;margin-bottom:24px;">
+                        <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-sidebar);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i data-lucide="sparkles" style="width:20px;height:20px;color:var(--accent);"></i>
+                        </div>
+                        <div style="background:var(--bg-sidebar);color:var(--text-primary);padding:18px 22px;border-radius:4px 20px 20px 20px;font-size:14px;line-height:1.7;max-width:85%;border:1px solid var(--border);">
+                            ${formattedText}
+                        </div>
+                    </div>`;
+                }
             });
+            if (_aiLoading) {
+                html += `
+                <div id="ai-typing" style="display:flex;gap:16px;margin-bottom:24px;">
+                    <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-sidebar);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-lucide="sparkles" style="width:20px;height:20px;color:var(--accent);"></i>
+                    </div>
+                    <div style="background:var(--bg-sidebar);color:var(--text-primary);padding:14px 22px;border-radius:4px 20px 20px 20px;font-size:14px;line-height:1.6;border:1px solid var(--border);">
+                        <span class="dot-typing"></span>
+                    </div>
+                </div>`;
+            }
         }
-        html += `</div>
-            <div style="display:flex;gap:12px;background:var(--bg-card);padding:12px;border-radius:18px;border:2px solid var(--border-light);box-shadow:0 4px 20px rgba(0,0,0,.06);">
-                <input id="ai-input" placeholder="${hasKey?'Ask about your finances...':'Add API key in Settings first'}" style="flex:1;border:none;background:transparent;font-size:15px;padding:8px;margin-bottom:0;color:var(--text-primary);" onkeydown="if(event.key==='Enter')sendAIMessage()" ${hasKey?'':'disabled'}>
-                <button onclick="sendAIMessage()" style="padding:12px 16px;background:var(--accent);color:white;border:none;border-radius:12px;cursor:pointer;"><i data-lucide="send" style="width:18px;height:18px;"></i></button>
+        
+        html += `
+                </div>
+                <!-- Chat Input -->
+                <div style="padding:24px;border-top:1px solid var(--border);background:var(--bg-sidebar);">
+                    <div style="display:flex;gap:12px;background:var(--bg-card);padding:8px 8px 8px 20px;border-radius:16px;border:1.5px solid var(--border);box-shadow:inset 0 2px 4px rgba(0,0,0,.02);transition:all .2s;${_isGuest?'opacity:0.6;pointer-events:none;':''}" id="ai-input-container">
+                        <input id="ai-input" placeholder="${_isGuest ? 'Sign in to use Advisor...' : 'Ask about your financial health...'}" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--text-primary);outline:none;" onfocus="document.getElementById('ai-input-container').style.borderColor='var(--accent)'" onblur="document.getElementById('ai-input-container').style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')sendAIMessage()" ${_aiLoading||_isGuest?'disabled':''}>
+                        <button id="ai-send-btn" onclick="sendAIMessage()" style="width:42px;height:42px;background:var(--accent);color:white;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s;box-shadow:0 4px 12px rgba(75,94,255,.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" ${_aiLoading||_isGuest?'disabled':''}>
+                            <i data-lucide="send" style="width:18px;height:18px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Advisor Intelligence Sidebar -->
+            <div style="display:flex;flex-direction:column;gap:20px;">
+                <!-- Live Context Card -->
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.02);">
+                    <h4 style="font-size:12px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+                        <i data-lucide="activity" style="width:14px;height:14px;"></i> Live Analysis
+                    </h4>
+                    <div style="display:grid;gap:16px;">
+                        <div style="background:var(--bg-sidebar);padding:16px;border-radius:16px;border:1px solid var(--border);">
+                            <p style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">Ready to Assign</p>
+                            <p class="tabular" style="font-size:18px;font-weight:900;color:${rta<0?'var(--red)':'var(--green)'};">${fmtAmt(rta)}</p>
+                        </div>
+                        <div style="background:var(--bg-sidebar);padding:16px;border-radius:16px;border:1px solid var(--border);">
+                            <p style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">Net Worth</p>
+                            <p class="tabular" style="font-size:18px;font-weight:900;color:var(--text-primary);">${fmtAmt(nw)}</p>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light);">
+                        <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;display:flex;gap:8px;">
+                            <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0;color:var(--accent);"></i>
+                            I'm currently processing ${state.transactions.length} transactions across ${state.accounts.length} accounts.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Advisor Features -->
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.02);">
+                    <h4 style="font-size:12px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Advisor Capabilities</h4>
+                    <div style="display:grid;gap:12px;">
+                        ${[
+                            {icon:'trending-up', label:'Spending Analysis', desc:'Identify patterns and waste.'},
+                            {icon:'target', label:'Goal Forecasting', desc:'Predict when you\'ll hit targets.'},
+                            {icon:'shield-check', label:'Debt Strategies', desc:'Optimize payoff schedules.'}
+                        ].map(f => `
+                            <div style="display:flex;gap:12px;align-items:flex-start;">
+                                <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i data-lucide="${f.icon}" style="width:16px;height:16px;color:var(--accent);"></i>
+                                </div>
+                                <div>
+                                    <p style="font-size:13px;font-weight:800;color:var(--text-primary);">${f.label}</p>
+                                    <p style="font-size:11px;color:var(--text-secondary);">${f.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
             </div>
         </div>`;
+        
         el.innerHTML = html;
         lucide.createIcons();
         const chat = document.getElementById('ai-chat');
         if(chat) chat.scrollTop = chat.scrollHeight;
     }
-    function sendAISuggestion(text) { _aiMessages.push({role:'user',parts:[{text}]}); renderAI(); doAICall(text); }
+
+    function clearAIChat() {
+        if (!_aiMessages.length) return;
+        _aiMessages = [];
+        renderAI();
+    }
+
+    function sendAISuggestion(text) { 
+        if (_aiLoading) return;
+        _aiMessages.push({role:'user', content:text}); 
+        renderAI(); 
+        doAICall(); 
+    }
+
     async function sendAIMessage() {
         const input = document.getElementById('ai-input');
-        if(!input||!input.value.trim()) return;
-        const msg = input.value.trim(); input.value='';
-        _aiMessages.push({role:'user',parts:[{text:msg}]});
+        if(!input || !input.value.trim() || _aiLoading) return;
+        const msg = input.value.trim(); 
+        input.value = '';
+        _aiMessages.push({role:'user', content:msg});
         renderAI();
-        await doAICall(msg);
+        await doAICall();
     }
-    function buildAIContext() {
-        let ctx=`Budget: ${state.budgetName}, Currency: ${state.currency}, Month: ${fmtMonthYear(state.currentMonth,state.currentYear)}\n`;
-        ctx+=`RTA: ${fmtAmt(getReadyToAssign())}, Net Worth: ${fmtAmt(getNetWorth())}\n`;
-        ctx+=`Accounts: ${state.accounts.map(a=>`${a.name}(${a.type}): ${fmtAmt(getAccountBalance(a.id))}`).join(', ')}\n`;
-        state.categoryGroups.forEach(g=>{
-            ctx+=`[${g.name}] `;
-            g.categories.forEach(c=>{ ctx+=`${c.name}: assigned=${fmtAmt(getCatMonthAssigned(c,state.currentMonth,state.currentYear))}, avail=${fmtAmt(getCategoryAvailable(c))}, target=${fmtAmt(c.target||0)}; `; });
-            ctx+='\n';
+
+    function getBudgetContext() {
+        const m = state.currentMonth;
+        const y = state.currentYear;
+        
+        let ctx = `You are Budgety AI Advisor, a senior financial strategist.
+Your task is to provide high-density, professional financial analysis based on the user's REAL budget data provided below.
+
+STRICT OPERATING RULES:
+1. FOCUS: Only answer the user's specific question. Do NOT provide a full financial audit or executive summary unless explicitly asked for a "full analysis" or "deep dive".
+2. BE DIRECT: Get straight to the answer using specific amounts, category names, and data points from the budget below.
+3. NO FILLER: Skip greetings and introductory pleasantries.
+4. ACTIONABLE: If asked for tips or help, provide concrete steps based on their actual spending and goal progress.
+5. FORMATTING: Use Markdown (bolding, lists, tables) to make data scanable.
+6. Use currency: ${state.currency}.
+
+=== USER FINANCIAL DATA SNAPSHOT ===
+
+=== CURRENT SNAPSHOT: ${fmtMonthYear(m, y)} ===
+Net Worth: ${fmtAmt(getNetWorth())} | Ready to Assign: ${fmtAmt(getReadyToAssign())} | Income this month: ${fmtAmt(state.transactions.filter(t=>t.type==='inflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((a,b)=>a+b.amount,0))} | Spent this month: ${fmtAmt(state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((a,b)=>a+b.amount,0))}
+
+=== ACCOUNTS ===
+${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountBalance(a.id))}`).join('\n')}
+
+=== CURRENT MONTH BUDGET CATEGORIES ===
+`;
+        state.categoryGroups.forEach(g => {
+            ctx += `[${g.name}]\n`;
+            g.categories.forEach(c => {
+                const assigned = getCatMonthAssigned(c, m, y);
+                const activity = getCatActivityForMonth(c.id, m, y);
+                const avail = getCategoryAvailable(c);
+                const needs = getCatNeedsThisMonth(c);
+                let flags = '';
+                if (needs > 0) flags += ' ⚠️UNDERFUNDED';
+                if (avail < 0) flags += ' 🔴OVERSPENT';
+                ctx += `- ${c.name}: Assigned: ${fmtAmt(assigned)} | Spent: ${fmtAmt(activity)} | Available: ${fmtAmt(avail)}${flags}\n`;
+            });
         });
-        state.goals.forEach(g=>{ ctx+=`Goal "${g.name}": ${fmtAmt(g.saved||0)}/${fmtAmt(g.target||0)}, ${fmtAmt(g.monthlyContribution||0)}/mo\n`; });
+
+        ctx += `\n=== FINANCIAL GOALS ===\n`;
+        state.goals.forEach(g => {
+            const pct = Math.round((g.saved || 0) / (g.target || 1) * 100);
+            ctx += `- ${g.name}: ${fmtAmt(g.saved || 0)} / ${fmtAmt(g.target || 0)} (${pct}%) | Target: ${g.targetDate || 'No deadline'}\n`;
+        });
+
+        ctx += `\n=== MONTHLY SUMMARIES (ALL HISTORY) ===\n`;
+        for (let i = 0; i < 6; i++) {
+            let tm = m - i, ty = y;
+            while (tm < 0) { tm += 12; ty--; }
+            const income = state.transactions.filter(t=>t.type==='inflow'&&parseDate(t.date).getMonth()===tm&&parseDate(t.date).getFullYear()===ty).reduce((a,b)=>a+b.amount,0);
+            const expense = state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===tm&&parseDate(t.date).getFullYear()===ty).reduce((a,b)=>a+b.amount,0);
+            if (income > 0 || expense > 0) {
+                ctx += `- ${fmtMonthYear(tm, ty)}: Income: ${fmtAmt(income)} | Expense: ${fmtAmt(expense)} | Net: ${fmtAmt(income - expense)}\n`;
+            }
+        }
+
+        ctx += `\n=== ALL-TIME TOP SPENDING CATEGORIES ===\n`;
+        const catTotals = {};
+        state.transactions.filter(t=>t.type==='outflow'&&t.category).forEach(t => {
+            catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
+        });
+        const topCats = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0, 15);
+        topCats.forEach(([id, amt]) => {
+            const cat = state.categoryGroups.flatMap(g=>g.categories).find(c=>c.id===id);
+            if (cat) ctx += `- ${cat.name}: ${fmtAmt(amt)}\n`;
+        });
+
+        ctx += `\n=== COMPLETE TRANSACTION LOG (${state.transactions.length} transactions) ===\n`;
+        state.transactions.slice(-50).reverse().forEach(t => {
+            const acc = state.accounts.find(a=>a.id===t.account)?.name || '?';
+            const cat = state.categoryGroups.flatMap(g=>g.categories).find(c=>c.id===t.category)?.name || 'Inflow/Transfer';
+            ctx += `${t.date} | ${t.payee || '—'} | ${fmtAmt(t.amount)} | ${acc} | ${cat}\n`;
+        });
+
         return ctx;
     }
+
     async function doAICall() {
-        const key = state.settings?.geminiKey;
-        if(!key) { _aiMessages.push({role:'model',parts:[{text:'Please add your Gemini API key in Settings → Data tab.'}]}); renderAI(); return; }
+        _aiLoading = true;
+        renderAI();
         try {
-            const ctx = buildAIContext();
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    system_instruction:{parts:[{text:`You are a friendly, knowledgeable financial advisor specializing in zero-based budgeting (YNAB methodology). Here is the user's current budget data:\n${ctx}\nGive specific, actionable advice based on their actual numbers. Be concise but helpful. Use **bold** for emphasis.`}]},
-                    contents:_aiMessages.filter(m=>m.role==='user'||m.role==='model'),
-                    generationConfig:{temperature:0.75,maxOutputTokens:1024,topP:0.95}
-                })
+            const budgetCtx = getBudgetContext();
+            const contents = _aiMessages.map((msg, i) => {
+                let text = msg.content;
+                if (i === 0 && msg.role === 'user') {
+                    text = budgetCtx + '\n\n=== USER QUESTION ===\n' + text;
+                }
+                return { role: msg.role === 'user' ? 'user' : 'model', parts: [{ text }] };
             });
-            const data = await res.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
-            _aiMessages.push({role:'model',parts:[{text}]});
-        } catch(e) { _aiMessages.push({role:'model',parts:[{text:'Error: '+e.message}]}); }
+
+            const body = {
+                contents,
+                generationConfig: { 
+                    temperature: 0.8, 
+                    maxOutputTokens: 4096, 
+                    topP: 0.95 
+                },
+                safetySettings: [
+                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+                ]
+            };
+
+            const resp = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+                const errData = await resp.json().catch(() => ({}));
+                const errMsg = errData?.error?.message || `HTTP ${resp.status}`;
+                throw new Error(errMsg);
+            }
+
+            const data = await resp.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!reply) throw new Error('No text in response');
+
+            _aiMessages.push({ role: 'assistant', content: reply });
+        } catch (err) {
+            _aiMessages.push({ role: 'assistant', content: `❌ **API Error:**\n\`${err.message}\`` });
+        }
+        _aiLoading = false;
         renderAI();
     }
 
@@ -1824,7 +2347,6 @@
             html += `</div>`;
         } else if (tab==='data') {
             html += `<div style="max-width:560px;display:flex;flex-direction:column;gap:16px;">
-                <div class="field-group"><label class="field-label">Gemini API Key</label><input type="password" value="${state.settings?.geminiKey||''}" placeholder="Paste your Google AI Studio key" onblur="if(!state.settings)state.settings={};state.settings.geminiKey=this.value;saveToStorage();" style="margin-bottom:0;color:var(--text-primary);background:var(--bg-card);"></div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <button onclick="exportFullBackup()" style="padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-primary);font-weight:800;font-size:13px;cursor:pointer;">📥 Download Backup</button>
                     <button onclick="document.getElementById('restore-input').click()" style="padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-primary);font-weight:800;font-size:13px;cursor:pointer;">📤 Restore Backup</button>
@@ -2559,45 +3081,74 @@
     // ── Profile ──
     function openProfileModal() {
         const body=document.getElementById('profile-body');
+        const joinDateRaw = (!_isGuest && _currentUser?.created_at) ? _currentUser.created_at : state.profile?.createdAt;
+        const joinDate = joinDateRaw ? new Date(joinDateRaw).toLocaleDateString('en-US', {month:'long', year:'numeric'}) : 'Recently';
+        const lastSync = state.lastSync ? new Date(state.lastSync).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Just now';
+        
         body.innerHTML=`
-            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;">
-                <div style="position:relative;margin-bottom:16px;">
-                    <div style="width:96px;height:96px;border-radius:32px;background:var(--bg-sidebar);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04);">
-                        ${state.profile?.photo ? `<img src="${state.profile.photo}" style="width:100%;height:100%;object-fit:cover;">` : `<span style="color:var(--text-secondary);">👤</span>`}
-                    </div>
-                    <button onclick="document.getElementById('profile-photo').click()" style="position:absolute;bottom:-8px;right:-8px;width:32px;height:32px;background:var(--accent);color:white;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(75,94,255,.3);">
-                        <i data-lucide="camera" style="width:14px;height:14px;"></i>
-                    </button>
-                </div>
-                <input type="file" id="profile-photo" accept="image/*" style="display:none;" onchange="handleProfilePhoto(event)">
-                <p style="font-size:12px;font-weight:700;color:var(--text-secondary);">Profile Picture</p>
-            </div>
-
-            <div class="field-group">
-                <label class="field-label">Display Name</label>
-                <input id="profile-name" value="${state.profile?.name||'Guest User'}" style="margin-bottom:0;">
-            </div>
-
-            ${_isGuest ? `
-                <div style="background:var(--bg-sidebar);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-top:24px;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                        <i data-lucide="shield-alert" style="width:18px;height:18px;color:var(--accent);"></i>
-                        <p style="font-size:13px;font-weight:800;color:var(--text-primary);">Guest Account</p>
-                    </div>
-                    <p style="font-size:12px;color:var(--text-secondary);line-height:1.5;">Your budget data is stored only on this browser. Create an account to enable cloud sync and multi-device access.</p>
-                </div>
-            ` : `
-                <div style="margin-top:24px;padding:20px;background:var(--bg-sidebar);border:1.5px solid var(--border);border-radius:20px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);"></div>
-                            <span style="font-size:13px;font-weight:800;color:var(--text-primary);">Cloud Sync Active</span>
+            <div style="display:grid;grid-template-columns:220px 1fr;gap:48px;padding:8px 0;">
+                <!-- Left: Profile Summary -->
+                <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding-right:32px;border-right:1px solid var(--border-light);">
+                    <div style="position:relative;margin-bottom:24px;">
+                        <div style="width:110px;height:110px;border-radius:36px;background:var(--bg-card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.04);">
+                            ${state.profile?.photo ? `<img src="${state.profile.photo}" style="width:100%;height:100%;object-fit:cover;">` : `<i data-lucide="user" style="width:40px;height:40px;color:var(--text-secondary);"></i>`}
                         </div>
-                        <i data-lucide="cloud" style="width:18px;height:18px;color:var(--accent);"></i>
+                        <button onclick="document.getElementById('profile-photo').click()" style="position:absolute;bottom:-4px;right:-4px;width:34px;height:34px;background:var(--accent);color:white;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(75,94,255,.3);">
+                            <i data-lucide="camera" style="width:16px;height:16px;"></i>
+                        </button>
                     </div>
-                    <p style="font-size:12px;color:var(--text-secondary);">${_currentUser?.email || 'Logged in'}</p>
+                    <input type="file" id="profile-photo" accept="image/*" style="display:none;" onchange="handleProfilePhoto(event)">
+                    <h3 style="font-size:18px;font-weight:900;color:var(--text-primary);margin-bottom:4px;">${state.profile?.name||'Guest User'}</h3>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:32px;">${_currentUser?.email || 'Local Explorer'}</p>
+                    
+                    <div style="width:100%;text-align:left;background:var(--bg-sidebar);border-radius:16px;padding:16px;border:1px solid var(--border);">
+                        <p style="font-size:10px;font-weight:800;color:#AAA;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Account Type</p>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:${_isGuest?'var(--yellow)':'var(--green)'};"></div>
+                            <span style="font-size:13px;font-weight:800;color:var(--text-primary);">${_isGuest ? 'Guest Access' : 'Premium Account'}</span>
+                        </div>
+                    </div>
                 </div>
-            `}
+
+                <!-- Right: Identity & Security -->
+                <div>
+                    <h4 class="modal-section-header">Personal Identity</h4>
+                    <div class="field-group">
+                        <label class="field-label">Display Name</label>
+                        <input id="profile-name" value="${state.profile?.name||'Guest User'}" style="margin-bottom:0;">
+                    </div>
+
+                    <h4 class="modal-section-header" style="margin-top:32px;">Security</h4>
+                    <div class="modal-card">
+                        <div class="modal-list-item">
+                            <div style="flex:1;">
+                                <p style="font-size:14px;font-weight:800;color:var(--text-primary);">Password</p>
+                                <p style="font-size:11px;color:var(--text-secondary);">Update your secure login credentials</p>
+                            </div>
+                            <button onclick="showToast('Password reset link sent to your email.')" class="btn-outline" style="font-size:11px;padding:8px 16px;">Change</button>
+                        </div>
+                    </div>
+
+                    <h4 class="modal-section-header" style="margin-top:32px;">Session Details</h4>
+                    <div class="modal-card">
+                        <div class="modal-list-item">
+                            <span style="font-size:13px;font-weight:700;color:var(--text-secondary);">Member Since</span>
+                            <span style="font-size:13px;font-weight:800;color:var(--text-primary);">${joinDate}</span>
+                        </div>
+                        <div class="modal-list-item">
+                            <span style="font-size:13px;font-weight:700;color:var(--text-secondary);">Last Cloud Sync</span>
+                            <span style="font-size:13px;font-weight:800;color:var(--text-primary);">${lastSync}</span>
+                        </div>
+                    </div>
+
+                    <div class="danger-zone" style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border-light);">
+                        <button onclick="resetBudget()" style="background:transparent;border:none;color:var(--red);font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0;">
+                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                            Permanently Delete Budget Data
+                        </button>
+                    </div>
+                </div>
+            </div>
         `;
         openModal('modal-profile');
         lucide.createIcons();
@@ -2764,7 +3315,6 @@
         bootApp(); 
     }
     function bootApp() {
-        loadFromStorage();
         if(!state.accounts.length&&!state.categoryGroups.length&&!state._initialised) {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('auth-screen').style.display='none';
@@ -2870,6 +3420,8 @@
     // ── Init ──
     async function init() {
         applyTheme();
+        loadFromStorage();
+        
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if((localStorage.getItem(THEME_KEY)||'system') === 'system') applyTheme();
         });
