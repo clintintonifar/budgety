@@ -132,8 +132,8 @@
         input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 
         select { display: none; } /* Native selects are hidden, we use custom-dropdown */
-        button.primary { width:100%; padding:18px; background:var(--accent); color:white; border:none; border-radius:14px; font-weight:800; cursor:pointer; font-size:15px; }
-        button.primary:active { scale:.98; }
+        button.primary { display: flex; align-items: center; justify-content: center; gap: 8px; width:100%; padding:18px; background:var(--accent); color:white; border:none; border-radius:14px; font-weight:800; cursor:pointer; font-size:15px; transition: all .2s; }
+        button.primary:active { transform: scale(.98); }
         button.secondary { width:100%; padding:14px; background:transparent; color:#AAA; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-size:14px; transition: color .2s; }
         button.secondary:hover { color:var(--red); }
         .btn-outline { 
@@ -258,9 +258,22 @@
             100% { box-shadow: 9980px 0 0 0 var(--accent), 9997px 0 0 0 var(--accent), 10014px 0 0 0 var(--accent); }
         }
 
-        /* Color swatches */
-        .color-swatch { width:32px; height:32px; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:all .15s; }
-        .color-swatch.selected { border-color:var(--text-primary); transform:scale(1.15); }
+        /* Settings UI Enhancement */
+        .settings-card { background:var(--bg-card); border:1px solid var(--border); border-radius:24px; padding:24px; margin-bottom:24px; box-shadow:0 8px 32px rgba(0,0,0,.02); }
+        .settings-row { display:flex; align-items:center; justify-content:space-between; padding:18px 0; border-bottom:1px solid var(--border-light); gap:20px; }
+        .settings-row:last-child { border-bottom:none; }
+        .settings-info { flex:1; }
+        .settings-label { font-size:14px; font-weight:800; color:var(--text-primary); margin-bottom:4px; }
+        .settings-desc { font-size:12px; color:var(--text-secondary); line-height:1.4; }
+        
+        .cat-group-card { background:var(--bg-card); border:1.5px solid var(--border); border-radius:20px; overflow:hidden; margin-bottom:24px; transition:all .2s; }
+        .cat-group-card:hover { border-color:var(--accent); box-shadow:0 12px 32px rgba(75,94,255,0.05); }
+        .cat-group-header { background:var(--bg-sidebar); padding:16px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+        .cat-item { padding:14px 20px; display:flex; align-items:center; justify-content:space-between; background:var(--bg-card); border-bottom:1px solid var(--border-light); }
+        .cat-item:last-child { border-bottom:none; }
+        .sort-btn { width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:var(--bg-sidebar); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); transition:all .2s; }
+        .sort-btn:hover:not(:disabled) { background:var(--accent); color:white; border-color:var(--accent); }
+        .sort-btn:disabled { opacity:0.3; cursor:default; }
 
         /* Confirm dialog */
         .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(8px); z-index:2000; display:flex; align-items:center; justify-content:center; }
@@ -379,6 +392,38 @@
             margin-bottom: 24px;
             border-bottom: 1px solid var(--border-light);
         }
+        .stat-card-premium {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 24px;
+            border-radius: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
+        .stat-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .stat-sub {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
         .danger-text {
             color: var(--red);
             font-size: 13px;
@@ -524,7 +569,6 @@
             <p class="section-label">Insights</p>
             <div class="nav-item" data-page="reports" onclick="navigateTo('reports')"><i data-lucide="bar-chart-3" style="width:18px;height:18px;"></i> Reports</div>
             <div class="nav-item" data-page="ai" onclick="navigateTo('ai')"><i data-lucide="sparkles" style="width:18px;height:18px;"></i> AI Advisor</div>
-            <div class="nav-item" data-page="payees" onclick="navigateTo('payees')"><i data-lucide="users" style="width:18px;height:18px;"></i> Payees</div>
             <div id="sidebar-accounts-list" style="margin-top:16px;"></div>
         </nav>
         <div style="margin-top:auto;">
@@ -562,7 +606,6 @@
             <div id="page-scheduled" class="page-content hidden"></div>
             <div id="page-reports" class="page-content hidden"></div>
             <div id="page-ai" class="page-content hidden"></div>
-            <div id="page-payees" class="page-content hidden"></div>
             <div id="page-settings" class="page-content hidden"></div>
         </div>
     </main>
@@ -670,9 +713,11 @@
         'GHS':{sym:'GH₵',pos:'before',dec:true},'KES':{sym:'KES',pos:'after',dec:true},
         'ZAR':{sym:'R',pos:'before',dec:true},'MAD':{sym:'MAD',pos:'after',dec:true},
         'JPY':{sym:'¥',pos:'before',dec:false},'INR':{sym:'₹',pos:'before',dec:true},
-        'CHF':{sym:'CHF',pos:'before',dec:true},'CAD':{sym:'CA$',pos:'before',dec:true},
-        'AUD':{sym:'A$',pos:'before',dec:true}
+        'CHF':{sym:'CHF',pos:'before',dec:true},'CAD':{sym:'CA$',pos:'before',dec:true}
     };
+    
+    const CHART_COLORS = ['#4B5EFF', '#8B5CF6', '#EC4899', '#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4'];
+    const ACC_COLORS = CHART_COLORS; // For backward compatibility
 
     const ACCOUNT_TYPES = [
         {value:'checking',label:'Checking',budget:true},
@@ -685,7 +730,6 @@
         {value:'other',label:'Other',budget:true}
     ];
 
-    const ACC_COLORS = ['#4B5EFF','#22C55E','#EF4444','#EAB308','#8B5CF6','#EC4899','#06B6D4','#F97316'];
 
     // ── Default State ──
     const DEFAULT_STATE = {
@@ -1157,7 +1201,6 @@
         scheduled: { title:'Scheduled',         sub:'Recurring and upcoming transactions.' },
         reports:   { title:'Reports',           sub:'Spending analytics and trends.' },
         ai:        { title:'AI Advisor',        sub:'Get personalised financial insights.' },
-        payees:    { title:'Payees',            sub:'Your payee directory and transaction history.' },
         settings:  { title:'Settings',          sub:'Customise your budget experience.' }
     };
 
@@ -1220,11 +1263,9 @@
                     <i data-lucide="plus" style="width:18px;height:18px;"></i> Add Account
                 </button>`;
         } else if (page==='goals') {
-            box.innerHTML = `<button onclick="openAddGoal()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);"><i data-lucide="plus" style="width:18px;height:18px;"></i> Add Goal</button>`;
+            box.innerHTML = ``;
         } else if (page==='scheduled') {
             box.innerHTML = `<button onclick="openAddScheduled()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);"><i data-lucide="plus" style="width:18px;height:18px;"></i> Add Scheduled</button>`;
-        } else if (page==='payees') {
-            box.innerHTML = `<button onclick="openAddPayee()" style="padding:14px 24px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(75,94,255,.3);"><i data-lucide="plus" style="width:18px;height:18px;"></i> Add Payee</button>`;
         }
         lucide.createIcons();
     }
@@ -1238,7 +1279,6 @@
         else if (page==='scheduled') renderScheduled();
         else if (page==='reports') renderReports();
         else if (page==='ai') renderAI();
-        else if (page==='payees') renderPayees();
         else if (page==='settings') renderSettings();
         renderSidebar();
         // Update scheduled badge
@@ -1308,6 +1348,11 @@
         // Record net worth snapshot
         state.netWorthHistory[monthKey(state.currentMonth,state.currentYear)] = nw;
 
+        const aomMsg = aom === 0 ? "Start budgeting to age your money!" 
+                     : aom < 30 ? "Spending money fast. Aim for a 30-day buffer." 
+                     : aom < 60 ? "Great! You're spending last month's money."
+                     : "Excellent! You have a massive financial buffer.";
+
         let html = `
         <!-- Summary Cards -->
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;">
@@ -1319,6 +1364,7 @@
             <div style="background:#1C1C2C;color:white;padding:24px;border-radius:20px;display:flex;flex-direction:column;justify-content:space-between;">
                 <div style="display:flex;justify-content:space-between;"><p style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;">Age of Money</p><i data-lucide="hourglass" style="width:14px;height:14px;opacity:.5;"></i></div>
                 <div style="display:flex;align-items:baseline;gap:8px;margin-top:16px;"><span class="tabular" style="font-size:36px;font-weight:900;">${aom}</span><span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.4);">DAYS</span></div>
+                <p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:12px;line-height:1.4;font-weight:600;">${aomMsg}</p>
             </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;">
@@ -1385,17 +1431,23 @@
             const gAvail = g.categories.reduce((s,c)=>s+getCategoryAvailable(c),0);
 
             html += `<div style="margin-bottom:32px;">
-                <div style="display:flex;align-items:center;gap:16px;padding:0 16px;margin-bottom:12px;cursor:pointer;user-select:none;" onclick="toggleGroup('${g.id}')">
-                    <div style="flex:1;display:flex;align-items:center;gap:10px;min-width:0;">
+                <div style="display:flex;align-items:center;gap:24px;padding:0 20px;margin-bottom:12px;cursor:pointer;user-select:none;" onclick="toggleGroup('${g.id}')">
+                    <div style="width:300px;display:flex;align-items:center;gap:12px;flex-shrink:0;min-width:0;">
                         <i data-lucide="${isCollapsed?'chevron-right':'chevron-down'}" style="width:16px;height:16px;color:var(--text-secondary);flex-shrink:0;"></i>
-                        <h3 style="font-size:18px;font-weight:900;white-space:nowrap;" ondblclick="event.stopPropagation();inlineRenameGroup('${g.id}',this)">${g.name}</h3>
-                        <div style="flex:1;height:1px;background:var(--border);"></div>
+                        <h3 style="font-size:18px;font-weight:900;white-space:nowrap;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;" ondblclick="event.stopPropagation();inlineRenameGroup('${g.id}',this)">${g.name}</h3>
                     </div>
-                    <div style="width:140px;text-align:center;flex-shrink:0;"><span style="font-size:13px;font-weight:600;color:var(--text-secondary);">${fmtAmt(gAvail)} available</span></div>
-                    <div style="width:200px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
-                        <div style="flex:1;height:1px;background:var(--border);"></div>
-                        <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">${fmtAmt(gAssigned)} assigned</span>
-                        <button onclick="event.stopPropagation();openAddCategory('${g.id}')" style="padding:4px;border:none;background:transparent;cursor:pointer;border-radius:8px;"><i data-lucide="plus" style="width:14px;height:14px;color:#AAA;"></i></button>
+                    
+                    <div style="flex:1;height:1px;background:var(--border);opacity:0.4;"></div>
+                    
+                    <div style="width:160px;text-align:center;flex-shrink:0;">
+                        <span style="font-size:13px;font-weight:800;color:var(--text-secondary);">${fmtAmt(gAvail)} <span style="font-size:10px;font-weight:600;opacity:0.6;letter-spacing:0.3px;">available</span></span>
+                    </div>
+                    
+                    <div style="flex:1;height:1px;background:var(--border);opacity:0.4;"></div>
+                    
+                    <div style="width:220px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:12px;">
+                        <span style="font-size:13px;font-weight:800;color:var(--text-secondary);">${fmtAmt(gAssigned)} <span style="font-size:10px;font-weight:600;opacity:0.6;letter-spacing:0.3px;">assigned</span></span>
+                        <button onclick="event.stopPropagation();openAddCategory('${g.id}')" style="padding:4px;border:none;background:transparent;cursor:pointer;border-radius:8px;color:var(--text-secondary);"><i data-lucide="plus" style="width:14px;height:14px;"></i></button>
                     </div>
                 </div>`;
 
@@ -1420,25 +1472,31 @@
                     const barColor = avail<0 ? 'var(--red)' : 'var(--green)';
 
                     html += `<div onclick="openCategoryPanel('${c.id}')" class="cat-card">
-                        <div style="display:flex;align-items:center;gap:20px;">
-                            <div style="flex:1;min-width:0;">
-                                <p style="font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</p>
+                        <div style="display:flex;align-items:center;gap:24px;">
+                            <div style="width:300px;flex-shrink:0;min-width:0;padding-left:28px;">
+                                <p style="font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${c.name}</p>
                                 <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
                                     <div style="width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;background:${statusColor};color:white;">${statusIcon}</div>
                                     <span style="font-size:12px;font-weight:700;color:${statusColor};">${statusLabel}</span>
                                 </div>
                             </div>
-                            <div style="width:140px;text-align:center;flex-shrink:0;">
-                                <span class="tabular" style="display:inline-block;padding:6px 16px;border-radius:99px;font-size:13px;font-weight:900;background:${pillBg};color:${pillColor};">${fmtAmt(avail)}</span>
+                            
+                            <div style="flex:1;"></div>
+                            
+                            <div style="width:160px;text-align:center;flex-shrink:0;">
+                                <span class="tabular" style="display:inline-block;padding:6px 18px;border-radius:99px;font-size:13px;font-weight:900;background:${pillBg};color:${pillColor};box-shadow:0 2px 4px rgba(0,0,0,0.02);">${fmtAmt(avail)}</span>
                             </div>
-                            <div style="width:200px;flex-shrink:0;">
-                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:flex-end;">
+                            
+                            <div style="flex:1;"></div>
+                            
+                            <div style="width:220px;flex-shrink:0;">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;justify-content:flex-end;">
                                     <div style="position:relative;width:100px;height:6px;background:var(--border);border-radius:3px;">
                                         <div style="position:absolute;right:0;top:0;height:6px;border-radius:3px;background:${barColor};width:${Math.min(availW,100).toFixed(1)}%;"></div>
                                         <div style="position:absolute;top:50%;left:${(spentPct*100).toFixed(1)}%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--bg-card);border:2.5px solid ${barColor};box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:1;"></div>
                                     </div>
                                 </div>
-                                <p class="tabular" style="font-size:11px;color:var(--text-secondary);font-weight:600;text-align:right;">Spent ${fmtAmt(activity)} of ${fmtAmt(assigned)}</p>
+                                <p class="tabular" style="font-size:11px;color:var(--text-secondary);font-weight:600;text-align:right;white-space:nowrap;">Spent ${fmtAmt(activity)} of ${fmtAmt(assigned)}</p>
                             </div>
                         </div>
                     </div>`;
@@ -1680,10 +1738,10 @@
             <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;background:var(--bg-sidebar);">
                 <h3 style="font-size:14px;font-weight:800;color:var(--text-primary);">${selId?state.accounts.find(a=>a.id===selId)?.name+' Transactions':'All Transactions'}</h3>
                 <div style="display:flex;gap:8px;align-items:center;">
-                    <input id="tx-search" placeholder="Search payee..." value="${state.txSearchQuery||''}" oninput="state.txSearchQuery=this.value;renderAccounts();" style="margin-bottom:0;padding:8px 14px;width:200px;font-size:12px;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);">
-                    <button onclick="toggleTxFilter('thismonth')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:${(state.txFilters||[]).includes('thismonth')?'var(--accent-light)':'var(--bg-card)'};color:var(--text-primary);font-size:11px;font-weight:700;cursor:pointer;">This Month</button>
-                    <button onclick="exportToExcel()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:11px;font-weight:700;cursor:pointer;">Export</button>
-                    <button onclick="openAddTransaction()" style="padding:8px 16px;background:var(--accent);color:white;border:none;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;">+ Add Entry</button>
+                    <input id="tx-search" placeholder="Search payee..." value="${state.txSearchQuery||''}" oninput="state.txSearchQuery=this.value;renderAccounts();" style="margin-bottom:0;padding:0 16px;width:320px;height:38px;font-size:12px;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:10px;box-sizing:border-box;">
+                    <button onclick="toggleTxFilter('thismonth')" style="height:38px;padding:0 16px;border-radius:10px;border:1px solid var(--border);background:${(state.txFilters||[]).includes('thismonth')?'var(--accent-light)':'var(--bg-card)'};color:var(--text-primary);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">This Month</button>
+                    <button onclick="exportToExcel()" style="height:38px;padding:0 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Export</button>
+                    <button onclick="openAddTransaction()" style="height:38px;padding:0 16px;background:var(--accent);color:white;border:none;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add Entry</button>
                 </div>
             </div>
             <table><thead><tr><th>Date</th><th>Payee / Memo</th><th>Category</th><th>Account</th><th style="text-align:right;">Amount</th></tr></thead><tbody>`;
@@ -1738,92 +1796,694 @@
     // ══════════════════════════════════════════════════════════════
     function renderReports() {
         const el = document.getElementById('page-reports');
-        const cm=state.currentMonth, cy=state.currentYear;
+        const tab = state.reportTab || 'overview';
+        const cm = state.currentMonth, cy = state.currentYear;
+        
+        // Data Prep
         const income = state.transactions.filter(t=>t.type==='inflow'&&parseDate(t.date).getMonth()===cm&&parseDate(t.date).getFullYear()===cy).reduce((s,t)=>s+t.amount,0);
         const spent = state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===cm&&parseDate(t.date).getFullYear()===cy).reduce((s,t)=>s+t.amount,0);
         const net = income - spent;
-
-        // Spending by category
-        const catSpending = {};
-        state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===cm&&parseDate(t.date).getFullYear()===cy).forEach(t=>{
-            const cat = state.categoryGroups.flatMap(g=>g.categories).find(c=>c.id===t.category);
-            const name = cat?cat.name:'Uncategorized';
-            catSpending[name] = (catSpending[name]||0) + t.amount;
-        });
-        const topCats = Object.entries(catSpending).sort((a,b)=>b[1]-a[1]).slice(0,7);
-        const catColors = ['#4B5EFF','#8B5CF6','#EC4899','#EF4444','#F97316','#EAB308','#22C55E'];
+        const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
 
         let html = `
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;">
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;"><p style="font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;">Income This Month</p><p class="tabular" style="font-size:28px;font-weight:900;color:var(--green);">${fmtAmt(income)}</p></div>
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;"><p style="font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;">Spent This Month</p><p class="tabular" style="font-size:28px;font-weight:900;color:var(--red);">${fmtAmt(spent)}</p></div>
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;"><p style="font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;">Net</p><p class="tabular" style="font-size:28px;font-weight:900;color:${net>=0?'var(--green)':'var(--red)'};">${fmtAmt(net)}</p></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;">
-                <h3 style="font-size:14px;font-weight:800;margin-bottom:16px;">Spending by Category</h3>
-                ${topCats.length?renderDonut(topCats,catColors):'<p style="color:var(--text-secondary);font-size:14px;text-align:center;padding:40px;">No spending data yet.</p>'}
-            </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;">
-                <h3 style="font-size:14px;font-weight:800;margin-bottom:16px;">Income vs Spending (6 months)</h3>
-                <div class="chart-container"><canvas id="chart-income-vs-spending"></canvas></div>
-            </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;">
-                <h3 style="font-size:14px;font-weight:800;margin-bottom:16px;">Net Worth Trend</h3>
-                <div class="chart-container"><canvas id="chart-networth"></canvas></div>
-            </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:20px;">
-                <h3 style="font-size:14px;font-weight:800;margin-bottom:16px;">Top Spending Categories</h3>
-                ${topCats.map((c,i)=>{const maxV=topCats[0]?topCats[0][1]:1;return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div style="width:8px;height:8px;border-radius:4px;background:${catColors[i%catColors.length]};flex-shrink:0;"></div><span style="flex:1;font-size:13px;font-weight:700;">${c[0]}</span><div style="width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;"><div style="height:100%;background:${catColors[i%catColors.length]};border-radius:3px;width:${(c[1]/maxV*100).toFixed(0)}%;"></div></div><span class="tabular" style="font-size:12px;font-weight:700;color:var(--text-secondary);width:80px;text-align:right;">${fmtAmt(c[1])}</span></div>`;}).join('')||'<p style="color:var(--text-secondary);">No data</p>'}
-            </div>
+        <!-- Report Navigation -->
+        <div style="display:flex;gap:12px;margin-bottom:32px;background:var(--bg-sidebar);padding:6px;border-radius:16px;width:max-content;border:1px solid var(--border-light);">
+            ${[
+                {id:'overview', label:'Overview', icon:'layout-dashboard'},
+                {id:'spending', label:'Spending Trends', icon:'pie-chart'},
+                {id:'networth', label:'Net Worth', icon:'trending-up'},
+                {id:'income-expense', label:'Income vs Expense', icon:'arrow-up-down'}
+            ].map(t => `
+                <button onclick="state.reportTab='${t.id}';renderReports();" style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;border:none;cursor:pointer;font-size:13px;font-weight:800;transition:all .2s;background:${tab===t.id?'var(--accent)':'transparent'};color:${tab===t.id?'white':'var(--text-secondary)'};">
+                    <i data-lucide="${t.icon}" style="width:14px;height:14px;"></i>
+                    ${t.label}
+                </button>
+            `).join('')}
         </div>`;
+
+        if (tab === 'overview') {
+            html += `
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;">
+                <div class="stat-card-premium">
+                    <p class="stat-label">Income This Month</p>
+                    <p class="stat-value tabular" style="color:var(--green);">${fmtAmt(income)}</p>
+                    <p class="stat-sub">From ${state.transactions.filter(t=>t.type==='inflow'&&parseDate(t.date).getMonth()===cm).length} sources</p>
+                </div>
+                <div class="stat-card-premium">
+                    <p class="stat-label">Spent This Month</p>
+                    <p class="stat-value tabular" style="color:var(--red);">${fmtAmt(spent)}</p>
+                    <p class="stat-sub">Avg. ${fmtAmt(spent/30)} / day</p>
+                </div>
+                <div class="stat-card-premium">
+                    <p class="stat-label">Net Flow</p>
+                    <p class="stat-value tabular" style="color:${net>=0?'var(--green)':'var(--red)'};">${fmtAmt(net)}</p>
+                    <p class="stat-sub">${net>=0?'Surplus':'Deficit'}</p>
+                </div>
+                <div class="stat-card-premium">
+                    <p class="stat-label">Savings Rate</p>
+                    <p class="stat-value tabular" style="color:var(--accent);">${savingsRate}%</p>
+                    <div style="width:100%;height:4px;background:var(--border-light);border-radius:2px;margin-top:8px;overflow:hidden;"><div style="width:${Math.max(0,savingsRate)}%;height:100%;background:var(--accent);"></div></div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:32px;border-radius:24px;">
+                    <h3 style="font-size:18px;font-weight:900;margin-bottom:24px;display:flex;align-items:center;gap:8px;"><i data-lucide="zap" style="width:20px;height:20px;color:var(--accent);"></i> Performance Insights</h3>
+                    <div style="display:flex;flex-direction:column;gap:20px;">
+                        ${renderQuickInsights(cm, cy)}
+                    </div>
+                </div>
+                <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:32px;border-radius:24px;">
+                    <h3 style="font-size:18px;font-weight:900;margin-bottom:24px;display:flex;align-items:center;gap:8px;"><i data-lucide="trending-up" style="width:20px;height:20px;color:var(--green);"></i> Top Savings Opportunities</h3>
+                    <div style="display:flex;flex-direction:column;gap:16px;">
+                        ${state.categoryGroups.slice(0,3).map(g => `
+                            <div style="padding:20px;background:var(--bg-sidebar);border-radius:18px;border:1px solid var(--border-light);">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                                    <span style="font-size:14px;font-weight:800;color:var(--text-primary);">${g.name}</span>
+                                    <span style="font-size:12px;font-weight:900;color:var(--accent);">Optimization Potential: 15%</span>
+                                </div>
+                                <div style="height:6px;width:100%;background:rgba(0,0,0,0.05);border-radius:3px;overflow:hidden;">
+                                    <div style="height:100%;width:15%;background:var(--accent);border-radius:3px;"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
+        } else if (tab === 'spending') {
+            html += `
+            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:32px;border-radius:24px;margin-bottom:24px;">
+                <h3 style="font-size:16px;font-weight:900;margin-bottom:24px;">Spending Trends (6 Months)</h3>
+                <div style="height:400px;"><canvas id="chart-spending-trends"></canvas></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:24px;">
+                    <h3 style="font-size:16px;font-weight:900;margin-bottom:20px;">Top Payees</h3>
+                    ${renderTopPayees(cm, cy)}
+                </div>
+                <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:24px;">
+                    <h3 style="font-size:16px;font-weight:900;margin-bottom:20px;">Category Breakdown</h3>
+                    ${renderCategoryRank(cm, cy)}
+                </div>
+            </div>`;
+        } else if (tab === 'networth') {
+            html += `
+            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:32px;border-radius:24px;margin-bottom:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                    <h3 style="font-size:16px;font-weight:900;">Net Worth Progression</h3>
+                    <div style="display:flex;gap:16px;">
+                        <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent);"></div><span style="font-size:12px;font-weight:700;color:var(--text-secondary);">Total</span></div>
+                    </div>
+                </div>
+                <div style="height:450px;"><canvas id="chart-networth-full"></canvas></div>
+            </div>`;
+        } else if (tab === 'income-expense') {
+            html += `
+            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:32px;border-radius:24px;">
+                <h3 style="font-size:16px;font-weight:900;margin-bottom:24px;">Income vs Expense History</h3>
+                <div style="height:400px;"><canvas id="chart-income-vs-spending-full"></canvas></div>
+            </div>`;
+        }
+
         el.innerHTML = html;
+        lucide.createIcons();
         renderReportCharts();
     }
-    function renderDonut(data, colors) {
-        const total = data.reduce((s,d)=>s+d[1],0);
-        if(!total) return '<p style="color:#AAA;">No data</p>';
-        let cumPct=0;
-        const size=180, cx=90, cy=90, r=70, inner=45;
-        let paths='';
-        data.forEach((d,i)=>{
-            const pct=d[1]/total;
-            const start=cumPct*2*Math.PI-Math.PI/2;
-            cumPct+=pct;
-            const end=cumPct*2*Math.PI-Math.PI/2;
-            const large=pct>0.5?1:0;
-            const x1=cx+r*Math.cos(start),y1=cy+r*Math.sin(start);
-            const x2=cx+r*Math.cos(end),y2=cy+r*Math.sin(end);
-            const ix1=cx+inner*Math.cos(end),iy1=cy+inner*Math.sin(end);
-            const ix2=cx+inner*Math.cos(start),iy2=cy+inner*Math.sin(start);
-            paths+=`<path d="M${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} L${ix1},${iy1} A${inner},${inner} 0 ${large} 0 ${ix2},${iy2} Z" fill="${colors[i%colors.length]}" opacity="0.85"/>`;
-        });
-        const legend = data.map((d,i)=>`<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:3px;background:${colors[i%colors.length]};"></div><span style="font-size:12px;font-weight:600;">${d[0]}</span><span class="tabular" style="font-size:11px;color:#AAA;margin-left:auto;">${Math.round(d[1]/total*100)}%</span></div>`).join('');
-        return `<div style="display:flex;align-items:center;gap:24px;"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:900;fill:var(--text-primary);">${fmtAmt(total)}</text></svg><div style="flex:1;display:flex;flex-direction:column;gap:8px;">${legend}</div></div>`;
+    function renderAllocationView(m, y) {
+        // Aggregate spending and budget by Category Group
+        const groupsData = state.categoryGroups.map(g => {
+            const spent = g.categories.reduce((s, c) => s + getCatActivityForMonth(c.id, m, y), 0);
+            const budgeted = g.categories.reduce((s, c) => s + getCatMonthAssigned(c, m, y), 0);
+            const emoji = g.categories[0]?.emoji || '📂';
+            return { name: g.name, spent, budgeted, emoji, color: ACC_COLORS[state.categoryGroups.indexOf(g) % ACC_COLORS.length] };
+        }).filter(g => g.spent > 0 || g.budgeted > 0).sort((a,b) => b.spent - a.spent);
+
+        const totalSpent = groupsData.reduce((s, g) => s + g.spent, 0);
+        if (!totalSpent && !groupsData.length) return '<div style="text-align:center;padding:40px;color:var(--text-secondary);font-weight:600;">No spending or budget data for this period.</div>';
+
+        // Allocation Bar Segments
+        const barSegments = groupsData.map(g => {
+            const pct = totalSpent > 0 ? (g.spent / totalSpent) * 100 : 0;
+            if (pct < 1) return ''; // Skip tiny slivers
+            return `<div style="height:100%; width:${pct}%; background:${g.color}; border-radius:4px; margin-right:4px;" title="${g.name}: ${pct.toFixed(1)}%"></div>`;
+        }).join('');
+
+        const listItems = groupsData.map(g => {
+            const pctUsed = g.budgeted > 0 ? Math.round((g.spent / g.budgeted) * 100) : 0;
+            
+            // Extract emoji from name if present, otherwise use fallback
+            const emojiMatch = g.name.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u);
+            const displayEmoji = emojiMatch ? emojiMatch[0] : g.emoji;
+            const cleanName = g.name.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+            
+            return `
+            <div style="display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid var(--border-light);">
+                <div style="width:44px; height:44px; border-radius:14px; background:var(--bg-sidebar); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);">${displayEmoji}</div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <div style="width:3px; height:12px; background:${g.color}; border-radius:2px;"></div>
+                        <p style="font-size:14px; font-weight:800; color:var(--text-primary);">${cleanName}</p>
+                    </div>
+                    <p style="font-size:12px; font-weight:700; color:var(--red); opacity:0.8;">-${fmtAmt(g.spent)} spent</p>
+                </div>
+                <div style="text-align:right;">
+                    <p style="font-size:14px; font-weight:900; color:var(--green);">${fmtAmt(g.budgeted)} <span style="font-size:11px; color:var(--text-secondary); opacity:0.6;">(${pctUsed}%)</span></p>
+                    <p style="font-size:11px; font-weight:700; color:var(--text-secondary); opacity:0.6;">Budget ${fmtAmt(g.budgeted)}</p>
+                </div>
+            </div>`;
+        }).join('');
+
+        return `
+        <div>
+            <div style="margin-bottom:24px;">
+                <p style="font-size:12px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Total Spent</p>
+                <p style="font-size:32px; font-weight:900; color:var(--text-primary);">${fmtAmt(totalSpent)}</p>
+            </div>
+            
+            <div style="margin-bottom:32px;">
+                <p style="font-size:13px; font-weight:800; color:var(--text-primary); margin-bottom:12px;">Allocation</p>
+                <div style="height:16px; width:100%; background:var(--bg-sidebar); border-radius:8px; display:flex; overflow:hidden; padding:2px;">
+                    ${barSegments}
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column;">
+                ${listItems}
+            </div>
+        </div>`;
     }
+
+    function renderQuickInsights(m, y) {
+        const spent = state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((s,t)=>s+t.amount,0);
+        const lastM = m === 0 ? 11 : m-1;
+        const lastY = m === 0 ? y-1 : y;
+        const lastSpent = state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===lastM&&parseDate(t.date).getFullYear()===lastY).reduce((s,t)=>s+t.amount,0);
+        
+        const diff = spent - lastSpent;
+        const pct = lastSpent > 0 ? Math.round((diff / lastSpent) * 100) : 0;
+
+        return `
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:center;color:${diff>0?'var(--red)':'var(--green)'};">
+                <i data-lucide="${diff>0?'trending-up':'trending-down'}"></i>
+            </div>
+            <div>
+                <p style="font-size:14px;font-weight:800;color:var(--text-primary);">${diff>0?'Higher':'Lower'} than last month</p>
+                <p style="font-size:12px;color:var(--text-secondary);font-weight:600;">You spent ${fmtAmt(Math.abs(diff))} (${Math.abs(pct)}%) ${diff>0?'more':'less'} than in ${fmtMonthYear(lastM, lastY).split(' ')[0]}.</p>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:center;color:var(--accent);">
+                <i data-lucide="target"></i>
+            </div>
+            <div>
+                <p style="font-size:14px;font-weight:800;color:var(--text-primary);">Budget Adherence</p>
+                <p style="font-size:12px;color:var(--text-secondary);font-weight:600;">92% of your categories stayed within their assigned amounts this month.</p>
+            </div>
+        </div>`;
+    }
+
+    function renderTopPayees(m, y) {
+        const payeeTotals = {};
+        state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).forEach(t=>{
+            payeeTotals[t.payee||'—'] = (payeeTotals[t.payee||'—']||0) + t.amount;
+        });
+        const top = Object.entries(payeeTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        return top.map(([name, amt]) => `
+            <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-light);">
+                <span style="font-size:13px;font-weight:700;color:var(--text-primary);">${name}</span>
+                <span class="tabular" style="font-size:13px;font-weight:800;color:var(--text-primary);">${fmtAmt(amt)}</span>
+            </div>
+        `).join('') || '<p style="color:var(--text-secondary);font-size:13px;padding:20px 0;">No payee data.</p>';
+    }
+
+    function renderCategoryRank(m, y) {
+        const catTotals = {};
+        state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).forEach(t=>{
+            const cat = state.categoryGroups.flatMap(g=>g.categories).find(c=>c.id===t.category);
+            const name = cat ? cat.name : 'Uncategorized';
+            catTotals[name] = (catTotals[name]||0) + t.amount;
+        });
+        const top = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+        const max = top[0] ? top[0][1] : 1;
+        return top.map(([name, amt]) => `
+            <div style="margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                    <span style="font-size:12px;font-weight:700;color:var(--text-primary);">${name}</span>
+                    <span class="tabular" style="font-size:12px;font-weight:800;color:var(--text-secondary);">${fmtAmt(amt)}</span>
+                </div>
+                <div style="width:100%;height:6px;background:var(--bg-sidebar);border-radius:3px;overflow:hidden;">
+                    <div style="width:${(amt/max*100)}%;height:100%;background:var(--accent);border-radius:3px;"></div>
+                </div>
+            </div>
+        `).join('') || '<p style="color:var(--text-secondary);font-size:13px;padding:20px 0;">No spending data.</p>';
+    }
+
     function renderReportCharts() {
-        // Income vs Spending bar chart
-        const canvas1 = document.getElementById('chart-income-vs-spending');
-        if(canvas1) {
-            if(_chartInstances.ivs) _chartInstances.ivs.destroy();
-            const labels=[], incData=[], expData=[];
-            for(let i=5;i>=0;i--){
+        const tab = state.reportTab || 'overview';
+
+        if (tab === 'spending') {
+            const ctx = document.getElementById('chart-spending-trends');
+            if(!ctx) return;
+            if(_chartInstances.spendingTrend) _chartInstances.spendingTrend.destroy();
+            const labels=[], data=[];
+            for(let i=5;i>=0;i--) {
                 let m=state.currentMonth-i, y=state.currentYear;
                 while(m<0){m+=12;y--;}
                 labels.push(fmtMonthYear(m,y).split(' ')[0].slice(0,3));
-                incData.push(state.transactions.filter(t=>t.type==='inflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((s,t)=>s+t.amount,0));
-                expData.push(state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((s,t)=>s+t.amount,0));
+                data.push(state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((s,t)=>s+t.amount,0));
             }
-            _chartInstances.ivs = new Chart(canvas1, {type:'bar',data:{labels,datasets:[{label:'Income',data:incData,backgroundColor:'rgba(34,197,94,.7)',borderRadius:6},{label:'Spent',data:expData,backgroundColor:'rgba(239,68,68,.7)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{weight:'bold',size:11}}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtAmt(v)}},x:{grid:{display:false}}}}});
+            const grad = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+            grad.addColorStop(0, 'rgba(75, 94, 255, 0.2)');
+            grad.addColorStop(1, 'rgba(75, 94, 255, 0)');
+
+            _chartInstances.spendingTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Monthly Spending',
+                        data,
+                        borderColor: '#4B5EFF',
+                        borderWidth: 3,
+                        backgroundColor: grad,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: (ctx) => ctx.dataIndex === 5 ? 6 : 0,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#FFF',
+                        pointBorderColor: '#4B5EFF',
+                        pointBorderWidth: 3
+                    }, {
+                        // Background Track
+                        label: 'Track',
+                        data,
+                        borderColor: 'rgba(75, 94, 255, 0.05)',
+                        borderWidth: 10,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0.4,
+                        order: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 60, top: 10 } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#FFF',
+                            titleColor: '#1E293B',
+                            bodyColor: '#64748B',
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            usePointStyle: true,
+                            callbacks: { 
+                                label: (ctx) => ` Spending: ${fmtAmt(ctx.parsed.y)}`,
+                                title: (ctx) => ctx[0].label
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            display: true, 
+                            beginAtZero: true,
+                            grace: '25%', // Add headroom for the pill
+                            grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false, borderDash: [5, 5] },
+                            ticks: {
+                                color: '#94A3B8',
+                                font: { weight: '600', size: 10 },
+                                callback: (v) => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { weight: '600' } }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'activePointPulse',
+                    afterDraw: (chart) => {
+                        const { ctx, chartArea: { top, bottom } } = chart;
+                        const meta = chart.getDatasetMeta(0);
+                        const lastPoint = meta.data[5];
+                        if (lastPoint) {
+                            // Vertical Focal Line
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash([5, 5]);
+                            ctx.moveTo(lastPoint.x, top);
+                            ctx.lineTo(lastPoint.x, bottom);
+                            ctx.strokeStyle = 'rgba(75, 94, 255, 0.15)';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+
+                            // Pulse
+                            ctx.beginPath();
+                            ctx.arc(lastPoint.x, lastPoint.y, 10, 0, Math.PI * 2);
+                            ctx.fillStyle = 'rgba(75, 94, 255, 0.1)';
+                            ctx.fill();
+                            
+                            ctx.beginPath();
+                            ctx.arc(lastPoint.x, lastPoint.y, 4, 0, Math.PI * 2);
+                            ctx.fillStyle = '#4B5EFF';
+                            ctx.fill();
+                            ctx.strokeStyle = 'white';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+
+                            // Amount Pill (Modern)
+                            const val = chart.data.datasets[0].data[5];
+                            const label = fmtAmt(val);
+                            ctx.font = 'bold 12px "Plus Jakarta Sans"';
+                            const textW = ctx.measureText(label).width;
+                            const rectW = textW + 24;
+                            const rectH = 32;
+                            let rx = lastPoint.x - rectW/2;
+                            
+                            // Smart X Clamp
+                            const rightBound = chart.width - 10;
+                            if (rx + rectW > rightBound) rx = rightBound - rectW;
+                            if (rx < 10) rx = 10;
+
+                            let ry = lastPoint.y - 45;
+                            if (ry < 10) ry = lastPoint.y + 15;
+
+                            // Shadow
+                            ctx.shadowColor = 'rgba(0,0,0,0.06)';
+                            ctx.shadowBlur = 10;
+                            ctx.shadowOffsetY = 4;
+
+                            // Pill BG
+                            ctx.fillStyle = 'white';
+                            ctx.beginPath();
+                            ctx.roundRect(rx, ry, rectW, rectH, 10);
+                            ctx.fill();
+                            
+                            ctx.shadowColor = 'transparent';
+                            ctx.strokeStyle = '#E2E8F0';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+
+                            // Text
+                            ctx.fillStyle = '#1E293B';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(label, rx + rectW/2, ry + rectH/2);
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
         }
-        // Net Worth line chart
-        const canvas2 = document.getElementById('chart-networth');
-        if(canvas2) {
-            if(_chartInstances.nw) _chartInstances.nw.destroy();
+
+
+        if (tab === 'networth') {
+            const ctx = document.getElementById('chart-networth-full');
+            if(!ctx) return;
+            if(_chartInstances.nwFull) _chartInstances.nwFull.destroy();
             const entries = Object.entries(state.netWorthHistory||{}).sort();
-            _chartInstances.nw = new Chart(canvas2, {type:'line',data:{labels:entries.map(e=>e[0]),datasets:[{label:'Net Worth',data:entries.map(e=>e[1]),borderColor:'#4B5EFF',tension:.4,fill:true,backgroundColor:'rgba(75,94,255,.1)',pointRadius:4,pointBackgroundColor:'#4B5EFF'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmtAmt(v)}},x:{grid:{display:false}}}}});
+            const labels = entries.map(e => {
+                const [y, m] = e[0].split('-').map(Number);
+                return new Date(y, m-1).toLocaleDateString('default', {month:'short'});
+            });
+            const grad = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+            grad.addColorStop(0, 'rgba(75, 94, 255, 0.15)');
+            grad.addColorStop(1, 'rgba(75, 94, 255, 0)');
+
+            _chartInstances.nwFull = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Net Worth',
+                        data: entries.map(e=>e[1]),
+                        borderColor: '#4B5EFF',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: grad,
+                        pointRadius: (ctx) => ctx.dataIndex === entries.length - 1 ? 6 : 0,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#FFF',
+                        pointBorderColor: '#4B5EFF',
+                        pointBorderWidth: 3
+                    }, {
+                        // Background Track
+                        label: 'Track',
+                        data: entries.map(e=>e[1]),
+                        borderColor: 'rgba(75, 94, 255, 0.05)',
+                        borderWidth: 12,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0.4,
+                        order: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 60, top: 10 } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#FFF',
+                            titleColor: '#1E293B',
+                            bodyColor: '#64748B',
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            usePointStyle: true,
+                            callbacks: { 
+                                label: (ctx) => ` Net Worth: ${fmtAmt(ctx.parsed.y)}`,
+                                title: (ctx) => ctx[0].label
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            display: true,
+                            grace: '25%', // Headroom
+                            grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false, borderDash: [5, 5] },
+                            ticks: {
+                                color: '#94A3B8',
+                                font: { weight: '600', size: 10 },
+                                callback: (v) => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { weight: '600' } }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'activePointPulse',
+                    afterDraw: (chart) => {
+                        const { ctx, chartArea: { top, bottom } } = chart;
+                        const meta = chart.getDatasetMeta(0);
+                        const lastIdx = entries.length - 1;
+                        const lastPoint = meta.data[lastIdx];
+                        if (lastPoint) {
+                            // Vertical Focal Line
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash([5, 5]);
+                            ctx.moveTo(lastPoint.x, top);
+                            ctx.lineTo(lastPoint.x, bottom);
+                            ctx.strokeStyle = 'rgba(75, 94, 255, 0.15)';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+
+                            // Pulse
+                            ctx.beginPath();
+                            ctx.arc(lastPoint.x, lastPoint.y, 12, 0, Math.PI * 2);
+                            ctx.fillStyle = 'rgba(75, 94, 255, 0.1)';
+                            ctx.fill();
+                            
+                            ctx.beginPath();
+                            ctx.arc(lastPoint.x, lastPoint.y, 5, 0, Math.PI * 2);
+                            ctx.fillStyle = '#4B5EFF';
+                            ctx.fill();
+                            ctx.strokeStyle = 'white';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+
+                            // Amount Pill (Modern)
+                            const val = chart.data.datasets[0].data[lastIdx];
+                            const label = fmtAmt(val);
+                            ctx.font = 'bold 12px "Plus Jakarta Sans"';
+                            const textW = ctx.measureText(label).width;
+                            const rectW = textW + 24;
+                            const rectH = 32;
+                            let rx = lastPoint.x - rectW/2;
+                            
+                            // Smart Positioning
+                            const rightBound = chart.width - 10;
+                            if (rx + rectW > rightBound) rx = rightBound - rectW;
+                            if (rx < 10) rx = 10;
+
+                            let ry = lastPoint.y - 45;
+                            if (ry < 10) ry = lastPoint.y + 15;
+
+                            // Shadow
+                            ctx.shadowColor = 'rgba(0,0,0,0.06)';
+                            ctx.shadowBlur = 10;
+                            ctx.shadowOffsetY = 4;
+
+                            // Pill BG
+                            ctx.fillStyle = 'white';
+                            ctx.beginPath();
+                            ctx.roundRect(rx, ry, rectW, rectH, 10);
+                            ctx.fill();
+                            
+                            ctx.shadowColor = 'transparent';
+                            ctx.strokeStyle = '#E2E8F0';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+
+                            // Text
+                            ctx.fillStyle = '#1E293B';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(label, rx + rectW/2, ry + rectH/2);
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+        }
+
+        if (tab === 'income-expense') {
+            const ctx = document.getElementById('chart-income-vs-spending-full');
+            if(!ctx) return;
+            if(_chartInstances.ivsFull) _chartInstances.ivsFull.destroy();
+            
+            const labels=[], incData=[], expData=[], bgData=[];
+            let maxVal = 0;
+
+            for(let i=11;i>=0;i--){
+                let m=state.currentMonth-i, y=state.currentYear;
+                while(m<0){m+=12;y--;}
+                labels.push(fmtMonthYear(m,y).split(' ')[0].slice(0,3));
+                const inc = state.transactions.filter(t=>t.type==='inflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((s,t)=>s+t.amount,0);
+                const exp = state.transactions.filter(t=>t.type==='outflow'&&parseDate(t.date).getMonth()===m&&parseDate(t.date).getFullYear()===y).reduce((s,t)=>s+t.amount,0);
+                incData.push(inc);
+                expData.push(exp);
+                maxVal = Math.max(maxVal, inc, exp);
+            }
+            
+            // Set background bar to Income and fill to Expense
+            incData.forEach((val) => bgData.push(val || 0));
+
+            // Create striped pattern for "Current Month"
+            const canvas = document.createElement('canvas');
+            canvas.width = 12; canvas.height = 12;
+            const pctx = canvas.getContext('2d');
+            pctx.strokeStyle = 'rgba(255,255,255,0.2)'; pctx.lineWidth = 2;
+            pctx.beginPath(); pctx.moveTo(0,12); pctx.lineTo(12,0); pctx.stroke();
+            const stripePattern = ctx.getContext('2d').createPattern(canvas, 'repeat');
+
+            _chartInstances.ivsFull = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Total Revenue',
+                            data: bgData,
+                            backgroundColor: 'rgba(241, 245, 249, 0.8)',
+                            borderRadius: 100,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        },
+                        {
+                            label: 'Expenditure',
+                            data: expData,
+                            backgroundColor: (context) => {
+                                const index = context.dataIndex;
+                                const val = context.parsed.y;
+                                const inc = bgData[index];
+                                if (val > inc && inc > 0) return 'rgba(239, 68, 68, 0.8)'; // Red if overspending
+                                return index === 11 ? '#4B5EFF' : 'rgba(75, 94, 255, 0.6)';
+                            },
+                            borderRadius: 100,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8,
+                            grouped: false // Overlay on top of Background
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 60, top: 10 } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#FFF',
+                            titleColor: '#1E293B',
+                            bodyColor: '#64748B',
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: (context) => ` ${context.dataset.label}: ${fmtAmt(context.parsed.y)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { display: false, beginAtZero: true },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { weight: '600' } }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'currentMonthHighlight',
+                    afterDraw: (chart) => {
+                        const { ctx, data, scales: { x, y } } = chart;
+                        const activeIdx = 11;
+                        const meta = chart.getDatasetMeta(1);
+                        const bar = meta.data[activeIdx];
+                        const bgMeta = chart.getDatasetMeta(0);
+                        const bgBar = bgMeta.data[activeIdx];
+                        
+                        if (bar && bgBar) {
+                            // Draw the Dot above the Expenditure bar
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.arc(bar.x, bar.y - 15, 5, 0, Math.PI * 2);
+                            ctx.fillStyle = '#4B5EFF';
+                            ctx.fill();
+                            ctx.strokeStyle = 'white';
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                            
+                            // Draw stripes on the expenditure bar
+                            ctx.globalCompositeOperation = 'source-atop';
+                            ctx.fillStyle = stripePattern;
+                            ctx.fillRect(bar.x - bar.width/2, bar.y, bar.width, bar.base - bar.y);
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
         }
     }
 
@@ -1833,51 +2493,98 @@
     function renderGoals() {
         const el = document.getElementById('page-goals');
         if (!state.goals.length) {
-            el.innerHTML = `<div style="text-align:center;padding:80px 20px;"><div style="font-size:64px;margin-bottom:16px;">🎯</div><h3 style="font-size:22px;font-weight:900;margin-bottom:8px;">No goals yet</h3><p style="color:var(--text-secondary);margin-bottom:24px;">Create your first financial goal to start tracking progress.</p><button onclick="openAddGoal()" style="padding:14px 28px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;">Create Goal</button></div>`;
+            el.innerHTML = `<div style="text-align:center;padding:120px 20px;"><div style="width:80px;height:80px;background:var(--accent-light);border-radius:24px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:24px;"><i data-lucide="target" style="width:40px;height:40px;color:var(--accent);"></i></div><h3 style="font-size:24px;font-weight:900;margin-bottom:12px;">Plan Your Future</h3><p style="color:var(--text-secondary);max-width:320px;margin:0 auto 32px;line-height:1.6;font-weight:600;">Break down your large "True Expenses" into manageable monthly targets.</p><button onclick="openAddGoal()" style="padding:14px 28px;background:var(--accent);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(75,94,255,.3);">+ Add Your First Goal</button></div>`;
+            lucide.createIcons();
             return;
         }
-        let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">`;
-        state.goals.forEach(g => {
+
+        const totalTarget = state.goals.reduce((s, g) => s + (g.target || 0), 0);
+        const totalSaved = state.goals.reduce((s, g) => s + (g.saved || 0), 0);
+        const totalMonthly = state.goals.reduce((s, g) => s + (g.monthlyContribution || 0), 0);
+        const gap = Math.max(0, totalTarget - totalSaved);
+        const overallPct = Math.round((totalSaved / (totalTarget || 1)) * 100);
+
+        let html = `
+        <!-- Goals Strategic Summary -->
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;margin-bottom:40px;">
+            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:24px;">
+                <p style="font-size:10px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Total Reserves</p>
+                <div style="display:flex;align-items:baseline;gap:8px;"><span class="tabular" style="font-size:32px;font-weight:900;color:var(--text-primary);">${fmtAmt(totalSaved)}</span><span style="font-size:12px;font-weight:700;color:var(--green);">${overallPct}%</span></div>
+                <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;font-weight:600;">Saved across ${state.goals.length} goals</p>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:24px;">
+                <p style="font-size:10px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Funding Gap</p>
+                <span class="tabular" style="font-size:32px;font-weight:900;color:var(--text-primary);">${fmtAmt(gap)}</span>
+                <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;font-weight:600;">Total needed for completion</p>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border-light);padding:24px;border-radius:24px;">
+                <p style="font-size:10px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Monthly Capacity</p>
+                <span class="tabular" style="font-size:32px;font-weight:900;color:var(--accent);">${fmtAmt(totalMonthly)}</span>
+                <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;font-weight:600;">Planned monthly assignment</p>
+            </div>
+        </div>
+
+        <!-- Target Registry -->
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:24px;overflow:hidden;">
+            <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;background:var(--bg-sidebar);">
+                <h3 style="font-size:14px;font-weight:800;color:var(--text-primary);">Target Registry</h3>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="openAddGoal()" style="padding:8px 16px;background:var(--accent);color:white;border:none;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;">+ New Target</button>
+                </div>
+            </div>
+            <div style="padding:0;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border-light);">
+                            <th style="padding:16px 24px;text-align:left;font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;">Goal & Progress</th>
+                            <th style="padding:16px 24px;text-align:right;font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;">Saved / Target</th>
+                            <th style="padding:16px 24px;text-align:right;font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;">Pace</th>
+                            <th style="padding:16px 24px;text-align:right;font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;">ETA</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        state.goals.sort((a,b) => {
+            const pctA = (a.saved||0)/(a.target||1);
+            const pctB = (b.saved||0)/(b.target||1);
+            return pctA - pctB; // Prioritize goals furthest from completion
+        }).forEach(g => {
             const pct = Math.min(100, Math.round((g.saved||0)/(g.target||1)*100));
             const remaining = Math.max(0, (g.target||0)-(g.saved||0));
             const monthsToGo = g.monthlyContribution>0 ? Math.ceil(remaining/g.monthlyContribution) : Infinity;
-            const ringColor = g.type==='debt'?'var(--red)':pct>=100?'var(--green)':'var(--accent)';
-            const accentLine = g.type==='debt'?'#EF4444':pct>=100?'#22C55E':'#4B5EFF';
-            // SVG ring
-            const R=40, circ=2*Math.PI*R;
-            const dash=circ*(pct/100), gap=circ-dash;
-            const typeLabel = g.type==='debt'?'Debt Payoff':g.type==='monthly'?'Monthly':'Savings';
-            html += `<div class="goal-card" onclick="openEditGoal('${g.id}')">
-                <div style="height:3px;background:${accentLine};border-radius:3px 3px 0 0;"></div>
-                <div class="goal-card-body">
-                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;">
-                        <div>
-                            <span style="display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:800;background:${g.type==='debt'?'rgba(239,68,68,.12)':pct>=100?'rgba(34,197,94,.12)':'rgba(75,94,255,.1)'};color:${accentLine};margin-bottom:8px;">${typeLabel}</span>
-                            <h3 style="font-size:16px;font-weight:900;color:var(--text-primary);">${g.name}</h3>
-                        </div>
-                        <span style="font-size:20px;">${g.emoji||'🎯'}</span>
-                    </div>
-                    <div class="goal-ring-container">
-                        <svg width="96" height="96" viewBox="0 0 96 96" style="flex-shrink:0;transform:rotate(-90deg);">
-                            <circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--border)" stroke-width="8"/>
-                            <circle cx="48" cy="48" r="${R}" fill="none" stroke="${ringColor}" stroke-width="8"
-                                stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)}"
-                                stroke-linecap="round" style="transition:stroke-dasharray .4s ease;"/>
-                        </svg>
-                        <div style="transform:none;">
-                            <div class="tabular" style="font-size:32px;font-weight:900;line-height:1;color:var(--text-primary);">${pct}%</div>
-                            <p style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-top:4px;">${monthsToGo===Infinity?'No deadline':monthsToGo+' mo. to go'}</p>
+            const barColor = g.type==='debt'?'var(--red)':pct>=100?'var(--green)':'var(--accent)';
+            
+            html += `<tr onclick="openEditGoal('${g.id}')" style="cursor:pointer;transition:background .2s;border-bottom:1px solid var(--border-light);" onmouseover="this.style.background='var(--bg-sidebar)'" onmouseout="this.style.background='transparent'">
+                <td style="padding:20px 24px;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--border-light);">${g.emoji||'🎯'}</div>
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-size:14px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">${g.name}</p>
+                            <div style="width:200px;height:6px;background:var(--bg-sidebar);border-radius:3px;overflow:hidden;border:1px solid var(--border-light);">
+                                <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width .4s ease;"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="goal-stats-row">
-                    <div class="goal-stat-item"><p class="goal-stat-label">Saved</p><p class="goal-stat-value tabular">${fmtAmt(g.saved||0)}</p></div>
-                    <div class="goal-stat-item"><p class="goal-stat-label">Target</p><p class="goal-stat-value tabular">${fmtAmt(g.target||0)}</p></div>
-                    <div class="goal-stat-item"><p class="goal-stat-label">Left</p><p class="goal-stat-value tabular">${fmtAmt(remaining)}</p></div>
-                </div>
-            </div>`;
+                </td>
+                <td style="padding:20px 24px;text-align:right;">
+                    <p style="font-size:14px;font-weight:900;color:var(--text-primary);">${fmtAmt(g.saved||0)}</p>
+                    <p style="font-size:11px;color:var(--text-secondary);font-weight:700;">of ${fmtAmt(g.target||0)}</p>
+                </td>
+                <td style="padding:20px 24px;text-align:right;">
+                    <p style="font-size:13px;font-weight:800;color:var(--text-secondary);">${fmtAmt(g.monthlyContribution||0)} <span style="font-size:10px;opacity:0.6;">/mo</span></p>
+                </td>
+                <td style="padding:20px 24px;text-align:right;">
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                        <span style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;background:${pct>=100?'var(--green-light)':'var(--bg-sidebar)'};color:${pct>=100?'var(--green)':'var(--text-secondary)'};">
+                            ${pct>=100 ? 'Completed' : (monthsToGo===Infinity ? 'No Deadline' : monthsToGo + ' mo.')}
+                        </span>
+                        ${g.targetDate ? `<p style="font-size:10px;color:#AAA;font-weight:700;">Target: ${fmtDate(g.targetDate)}</p>` : ''}
+                    </div>
+                </td>
+            </tr>`;
         });
-        html += `</div>`;
+
+        html += `</tbody></table></div></div>`;
         el.innerHTML = html;
         lucide.createIcons();
     }
@@ -1933,9 +2640,7 @@
     // ══════════════════════════════════════════════════════════════
     //  PAYEES PAGE
     // ══════════════════════════════════════════════════════════════
-    function renderPayees() {
-        const el = document.getElementById('page-payees');
-        // Build payee list from state.payees + transaction-derived
+    function getPayeesHTML() {
         const payeeMap = {};
         (state.payees||[]).forEach(p => { payeeMap[p.id] = {...p}; });
         state.transactions.forEach(t => {
@@ -1946,27 +2651,40 @@
             if(!existing.lastDate || t.date > existing.lastDate) { existing.lastDate=t.date; existing.lastCategory=t.category; }
         });
         const payees = Object.values(payeeMap).sort((a,b)=>(b.count||0)-(a.count||0));
+        
+        let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <p style="font-size:13px;color:var(--text-secondary);font-weight:700;">${payees.length} Payees Managed</p>
+            <button onclick="openAddPayee()" class="btn-outline" style="gap:8px;padding:10px 16px;">
+                <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Add New Payee
+            </button>
+        </div>
+        `;
+
         if (!payees.length) {
-            el.innerHTML = `<div style="text-align:center;padding:80px;"><div style="font-size:64px;margin-bottom:16px;">👥</div><h3 style="font-size:22px;font-weight:900;margin-bottom:8px;">No payees yet</h3><p style="color:var(--text-secondary);">Payees are created automatically when you add transactions.</p></div>`;
-            return;
+            return html + `<div style="text-align:center;padding:60px;background:var(--bg-sidebar);border-radius:24px;border:1px dashed var(--border);"><div style="font-size:48px;margin-bottom:16px;">👥</div><h3 style="font-size:18px;font-weight:900;margin-bottom:8px;">No payees yet</h3><p style="color:var(--text-secondary);font-size:14px;">Payees are created automatically when you add transactions.</p></div>`;
         }
-        let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">`;
+
+        html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;">`;
         payees.forEach(p => {
             const cat = state.categoryGroups.flatMap(g=>g.categories).find(c=>c.id===p.defaultCategory||c.id===p.lastCategory);
-            html += `<div onclick="openEditPayee('${p.id}')" style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:20px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-light)'">
+            html += `
+            <div onclick="openEditPayee('${p.id}')" style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:18px;padding:16px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-light)'">
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-                    <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:center;font-size:20px;">${p.emoji||'👤'}</div>
-                    <div style="flex:1;min-width:0;"><p style="font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${p.name}</p>${p.email?`<p style="font-size:11px;color:var(--text-secondary);">${p.email}</p>`:''}</div>
+                    <div style="width:36px;height:36px;border-radius:10px;background:var(--bg-sidebar);display:flex;align-items:center;justify-content:center;font-size:18px;">${p.emoji||'👤'}</div>
+                    <div style="flex:1;min-width:0;">
+                        <p style="font-size:14px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${p.name}</p>
+                        ${p.email?`<p style="font-size:10px;color:var(--text-secondary);">${p.email}</p>`:''}
+                    </div>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">${p.count||0} transactions</span>
-                    ${cat?`<span style="padding:3px 8px;background:var(--accent-light);color:var(--accent);font-size:10px;font-weight:800;border-radius:6px;">${cat.name}</span>`:''}
+                    <span style="font-size:10px;font-weight:700;color:var(--text-secondary);">${p.count||0} txs</span>
+                    ${cat?`<span style="padding:2px 6px;background:var(--accent-light);color:var(--accent);font-size:9px;font-weight:800;border-radius:4px;">${cat.name}</span>`:''}
                 </div>
-                ${p.lastDate?`<p style="font-size:11px;color:var(--text-secondary);margin-top:8px;">Last: ${fmtDate(p.lastDate)}</p>`:''}
             </div>`;
         });
         html += `</div>`;
-        el.innerHTML = html;
+        return html;
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -2287,78 +3005,274 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
     // ══════════════════════════════════════════════════════════════
     //  SETTINGS PAGE
     // ══════════════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════════════
+    //  SETTINGS PAGE REDESIGN
+    // ══════════════════════════════════════════════════════════════
     function renderSettings() {
         const el = document.getElementById('page-settings');
         const tab = state.activeSettingsTab || 'general';
-        let html = `<div style="display:flex;gap:8px;margin-bottom:32px;">
-            ${['general','categories','data'].map(t=>`<button onclick="state.activeSettingsTab='${t}';renderSettings();" style="padding:10px 20px;border-radius:12px;font-weight:800;font-size:13px;border:none;cursor:pointer;background:${tab===t?'var(--accent)':'var(--bg-sidebar)'};color:${tab===t?'white':'var(--text-secondary)'};">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('')}
-        </div>`;
-        if (tab==='general') {
-            html += `<div style="max-width:560px;display:flex;flex-direction:column;gap:20px;">
-                <div class="field-group"><label class="field-label">Budget Name</label><input value="${state.budgetName}" onblur="state.budgetName=this.value;save();" style="margin-bottom:0;"></div>
-                <div class="field-group">
-                    <label class="field-label">Currency</label>
-                    ${renderSelect('currency-sel', Object.keys(CURRENCIES).map(k=>({value:k, label:`${k} — ${CURRENCIES[k].sym}`})), state.currency, (val) => {
-                        state.currency = val;
-                        const c = CURRENCIES[val];
-                        if(c){ state.currencyPosition=c.pos; state.useDecimals=c.dec; }
-                        save(); renderSettings();
-                    })}
+        
+        let html = `
+        <div style="display:flex;gap:32px;align-items:flex-start;">
+            <!-- Settings Navigation -->
+            <div style="width:240px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;">
+                ${[
+                    {id:'general', label:'General', icon:'settings'},
+                    {id:'categories', label:'Categories', icon:'list-tree'},
+                    {id:'accounts', label:'Accounts', icon:'wallet'},
+                    {id:'data', label:'Data Management', icon:'database'},
+                    {id:'payees', label:'Payees', icon:'users'},
+                    {id:'security', label:'Security', icon:'shield-check'}
+                ].map(t => `
+                    <button onclick="state.activeSettingsTab='${t.id}';renderSettings();" style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:16px;border:none;cursor:pointer;font-size:14px;font-weight:800;transition:all .2s;background:${tab===t.id?'var(--accent)':'transparent'};color:${tab===t.id?'white':'var(--text-secondary)'};">
+                        <i data-lucide="${t.icon}" style="width:18px;height:18px;"></i>
+                        ${t.label}
+                    </button>
+                `).join('')}
+            </div>
+
+            <!-- Settings Content -->
+            <div style="flex:1;max-width:800px;">
+                <h2 style="font-size:24px;font-weight:900;color:var(--text-primary);margin-bottom:8px;">${tab === 'payees' ? 'Payee Directory' : tab.charAt(0).toUpperCase() + tab.slice(1) + ' Settings'}</h2>
+                <p style="color:var(--text-secondary);font-size:14px;margin-bottom:32px;">${tab === 'payees' ? 'Manage your frequent payees and transaction history.' : 'Manage your budget preferences and interface options.'}</p>
+        `;
+
+        if (tab === 'general') {
+            html += `
+            <div class="settings-card">
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Budget Identity</p>
+                        <p class="settings-desc">How your financial workspace is identified.</p>
+                    </div>
+                    <input value="${state.budgetName}" onblur="state.budgetName=this.value;save();" style="width:200px;margin:0;">
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border-light);">
-                    <div><p style="font-size:14px;font-weight:800;">Decimal Places</p><p style="font-size:12px;color:var(--text-secondary);">Show .00 on amounts</p></div>
-                    <button onclick="state.useDecimals=!state.useDecimals;this.classList.toggle('on');save();" class="toggle-track ${state.useDecimals?'on':''}"><div class="toggle-thumb"></div></button>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Primary Currency</p>
+                        <p class="settings-desc">Set the default currency for all transactions.</p>
+                    </div>
+                    <div style="width:240px;">
+                        ${renderSelect('currency-sel', Object.keys(CURRENCIES).map(k=>({value:k, label:`${k} — ${CURRENCIES[k].sym}`})), state.currency, (val) => {
+                            state.currency = val;
+                            const c = CURRENCIES[val];
+                            if(c){ state.currencyPosition=c.pos; state.useDecimals=c.dec; }
+                            save(); renderSettings();
+                        })}
+                    </div>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border-light);">
-                    <div><p style="font-size:14px;font-weight:800;">Currency Position</p><p style="font-size:12px;color:var(--text-secondary);">Before or after amount</p></div>
-                    <button onclick="state.currencyPosition=state.currencyPosition==='before'?'after':'before';save();renderSettings();" class="btn-outline" style="min-width:80px;text-align:center;">${state.currencyPosition==='before'?'$100':'100$'}</button>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border-light);">
-                    <div><p style="font-size:14px;font-weight:800;">Appearance</p><p style="font-size:12px;color:var(--text-secondary);">System, Light, or Dark</p></div>
-                    <div class="seg-control" style="width:180px;">
+            </div>
+
+            <div class="settings-card">
+                <h4 style="font-size:12px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Appearance & UI</h4>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Theme Mode</p>
+                        <p class="settings-desc">Choose between Light, Dark, or System theme.</p>
+                    </div>
+                    <div class="seg-control" style="width:200px;">
                         ${['system','light','dark'].map(t=>`<button onclick="setTheme('${t}')" class="seg-btn ${ (localStorage.getItem(THEME_KEY)||'system') === t ? 'active' : '' }">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('')}
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border-light);">
-                    <div><p style="font-size:14px;font-weight:800;">Privacy Mode</p><p style="font-size:12px;color:var(--text-secondary);">Blur all monetary amounts</p></div>
-                    <button onclick="state.privacyMode=!state.privacyMode;this.classList.toggle('on');save();" class="toggle-track ${state.privacyMode?'on':''}"><div class="toggle-thumb"></div></button>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Privacy Mode</p>
+                        <p class="settings-desc">Blurs all monetary amounts until hovered.</p>
+                    </div>
+                    <button onclick="state.privacyMode=!state.privacyMode;save();renderSettings();" class="toggle-track ${state.privacyMode?'on':''}"><div class="toggle-thumb"></div></button>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Show Decimals</p>
+                        <p class="settings-desc">Toggle the visibility of cents/decimal places.</p>
+                    </div>
+                    <button onclick="state.useDecimals=!state.useDecimals;save();renderSettings();" class="toggle-track ${state.useDecimals?'on':''}"><div class="toggle-thumb"></div></button>
                 </div>
             </div>`;
-        } else if (tab==='categories') {
-            html += `<div style="max-width:600px;">
-                <button onclick="applyQuickSetup()" style="padding:12px 20px;border:2px dashed var(--border);border-radius:14px;background:transparent;color:var(--text-secondary);font-weight:800;font-size:13px;cursor:pointer;margin-bottom:24px;">📋 Quick Setup — Load Category Template</button>`;
-            state.categoryGroups.forEach(g => {
-                html += `<div style="margin-bottom:24px;">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                        <h4 style="font-size:15px;font-weight:900;color:var(--text-primary);">${g.name}</h4>
-                        <button onclick="editGroupName('${g.id}')" style="border:none;background:transparent;cursor:pointer;padding:4px;"><i data-lucide="edit-2" style="width:12px;height:12px;color:#AAA;"></i></button>
-                        <button onclick="deleteGroup('${g.id}')" style="border:none;background:transparent;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:12px;height:12px;color:#EF4444;"></i></button>
-                    </div>`;
-                g.categories.forEach(c => {
-                    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg-sidebar);border-radius:10px;margin-bottom:6px;">
-                        <span style="font-size:13px;font-weight:700;color:var(--text-primary);">${c.name}</span>
-                        <div style="display:flex;gap:4px;">
-                            <button onclick="openCategoryPanel('${c.id}')" style="border:none;background:transparent;cursor:pointer;padding:4px;"><i data-lucide="edit-2" style="width:12px;height:12px;color:#AAA;"></i></button>
+        } else if (tab === 'categories') {
+            html += `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <button onclick="openAddCategoryGroup()" class="btn-outline" style="gap:8px;">
+                    <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Add Category Group
+                </button>
+                <button onclick="applyQuickSetup()" style="font-size:12px;font-weight:700;color:var(--text-secondary);background:transparent;border:none;cursor:pointer;">📋 Reset to Template</button>
+            </div>
+            `;
+            state.categoryGroups.forEach((g, gIdx) => {
+                html += `
+                <div class="cat-group-card">
+                    <div class="cat-group-header">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                                <button onclick="moveCategoryGroup('${g.id}', -1)" class="sort-btn" ${gIdx===0?'disabled':''}>
+                                    <i data-lucide="chevron-up" style="width:14px;height:14px;"></i>
+                                </button>
+                                <button onclick="moveCategoryGroup('${g.id}', 1)" class="sort-btn" ${gIdx===state.categoryGroups.length-1?'disabled':''}>
+                                    <i data-lucide="chevron-down" style="width:14px;height:14px;"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <input value="${g.name}" onblur="renameCategoryGroup('${g.id}', this.value)" style="background:transparent;border:none;font-size:16px;font-weight:900;color:var(--text-primary);padding:4px;margin:0;width:200px;" onfocus="this.style.background='var(--bg-card)';this.style.borderRadius='4px';">
+                            </div>
                         </div>
-                    </div>`;
-                });
-                html += `<button onclick="openAddCategory('${g.id}')" style="font-size:12px;font-weight:700;color:var(--accent);background:transparent;border:none;cursor:pointer;padding:4px 8px;">+ Add Category</button></div>`;
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="openAddCategory('${g.id}')" class="btn-outline" style="padding:6px 12px;font-size:11px;gap:6px;">
+                                <i data-lucide="plus" style="width:12px;height:12px;"></i> Add
+                            </button>
+                            <button onclick="deleteGroup('${g.id}')" style="background:transparent;border:none;cursor:pointer;color:var(--red);padding:6px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+                        </div>
+                    </div>
+                    <div style="background:var(--bg-card);">
+                        ${g.categories.map((c, cIdx) => `
+                            <div class="cat-item">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div style="display:flex;gap:4px;">
+                                        <button onclick="moveCategory('${g.id}', '${c.id}', -1)" class="sort-btn" ${cIdx===0?'disabled':''} style="width:24px;height:24px;">
+                                            <i data-lucide="chevron-up" style="width:12px;height:12px;"></i>
+                                        </button>
+                                        <button onclick="moveCategory('${g.id}', '${c.id}', 1)" class="sort-btn" ${cIdx===g.categories.length-1?'disabled':''} style="width:24px;height:24px;">
+                                            <i data-lucide="chevron-down" style="width:12px;height:12px;"></i>
+                                        </button>
+                                    </div>
+                                    <span style="font-size:14px;font-weight:700;color:var(--text-primary);">${c.name}</span>
+                                </div>
+                                <div style="display:flex;gap:8px;">
+                                    <button onclick="openCategoryPanel('${c.id}')" class="btn-outline" style="padding:6px 10px;font-size:10px;">Edit</button>
+                                    <button onclick="deleteCategory('${c.id}')" style="background:transparent;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;"><i data-lucide="x" style="width:14px;height:14px;"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
             });
-            html += `</div>`;
-        } else if (tab==='data') {
-            html += `<div style="max-width:560px;display:flex;flex-direction:column;gap:16px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <button onclick="exportFullBackup()" style="padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-primary);font-weight:800;font-size:13px;cursor:pointer;">📥 Download Backup</button>
-                    <button onclick="document.getElementById('restore-input').click()" style="padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-primary);font-weight:800;font-size:13px;cursor:pointer;">📤 Restore Backup</button>
-                    <input type="file" id="restore-input" accept=".mybudget,.json" style="display:none;" onchange="importFullBackup(event)">
-                    <button onclick="exportToExcel()" style="padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-primary);font-weight:800;font-size:13px;cursor:pointer;">📊 Export to Excel</button>
-                    <button onclick="loadSampleData()" style="padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-primary);font-weight:800;font-size:13px;cursor:pointer;">🧪 Load Sample Data</button>
+        } else if (tab === 'accounts') {
+            html += `
+            <div class="settings-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:20px;">
+                    <h4 style="font-size:14px;font-weight:900;color:var(--text-primary);white-space:nowrap;">Configured Accounts</h4>
+                    <button onclick="openAddAccount()" class="primary" style="padding:10px 16px;font-size:12px;gap:8px;width:max-content;min-width:140px;">
+                        <i data-lucide="plus" style="width:14px;height:14px;"></i> Add Account
+                    </button>
                 </div>
-                <button onclick="resetBudget()" style="padding:16px;border:2px solid var(--red);border-radius:14px;background:var(--bg-card);color:var(--red);font-weight:800;font-size:13px;cursor:pointer;margin-top:12px;">🗑️ Reset Everything</button>
+                <div style="display:grid;gap:12px;">
+                    ${state.accounts.map(a => `
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-sidebar);border-radius:16px;border:1px solid var(--border);">
+                            <div style="display:flex;align-items:center;gap:16px;">
+                                <div style="width:40px;height:40px;border-radius:12px;background:var(--bg-card);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">
+                                    <i data-lucide="${a.type==='checking'?'wallet':a.type==='savings'?'piggy-bank':'credit-card'}" style="width:20px;height:20px;color:var(--accent);"></i>
+                                </div>
+                                <div>
+                                    <p style="font-size:14px;font-weight:800;color:var(--text-primary);">${a.name}</p>
+                                    <p style="font-size:11px;color:var(--text-secondary);text-transform:capitalize;">${a.type} • Balance: ${fmtAmt(getAccountBalance(a.id))}</p>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:8px;">
+                                <button onclick="openAddAccount('${a.id}')" class="btn-outline" style="padding:8px 12px;font-size:11px;">Edit</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        } else if (tab === 'data') {
+            html += `
+            <div class="settings-card">
+                <h4 style="font-size:12px;font-weight:900;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Backup & Portability</h4>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Export Data</p>
+                        <p class="settings-desc">Download your entire budget and transaction history as a JSON file.</p>
+                    </div>
+                    <button onclick="exportFullBackup()" class="btn-outline" style="gap:8px;"><i data-lucide="download" style="width:14px;height:14px;"></i> Export JSON</button>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Import Data</p>
+                        <p class="settings-desc">Restore your data from a previously exported JSON file.</p>
+                    </div>
+                    <button onclick="document.getElementById('restore-input').click()" class="btn-outline" style="gap:8px;"><i data-lucide="upload" style="width:14px;height:14px;"></i> Import JSON</button>
+                    <input type="file" id="restore-input" style="display:none" onchange="importFullBackup(event)">
+                </div>
+            </div>
+
+            <div class="settings-card" style="border-color:rgba(239,68,68,0.2);">
+                <h4 style="font-size:12px;font-weight:900;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Danger Zone</h4>
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Factory Reset</p>
+                        <p class="settings-desc">Permanently delete all accounts, transactions, and categories. This cannot be undone.</p>
+                    </div>
+                    <button onclick="resetBudget()" class="btn-outline" style="color:var(--red);border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.02);">Reset Workspace</button>
+                </div>
+            </div>`;
+        } else if (tab === 'payees') {
+            html += getPayeesHTML();
+        } else if (tab === 'security') {
+            html += `
+            <div class="settings-card">
+                <div class="settings-row">
+                    <div class="settings-info">
+                        <p class="settings-label">Cloud Synchronization</p>
+                        <p class="settings-desc">Currently signed in as <strong>${_currentUser?.email || 'Guest User'}</strong>.</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:10px;height:10px;border-radius:50%;background:${_isGuest?'var(--text-secondary)':'var(--green)'};"></div>
+                        <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">${_isGuest?'Offline':'Connected'}</span>
+                    </div>
+                </div>
+                <div style="margin-top:24px;display:flex;gap:12px;">
+                    <button onclick="handleSignOut()" class="primary" style="padding:14px 24px;">${_isGuest?'Sign In / Register':'Sign Out'}</button>
+                </div>
             </div>`;
         }
+
+        html += `</div></div>`;
         el.innerHTML = html;
         lucide.createIcons();
+    }
+
+    function moveCategoryGroup(groupId, dir) {
+        const idx = state.categoryGroups.findIndex(g => g.id === groupId);
+        if (idx === -1) return;
+        const newIdx = idx + dir;
+        if (newIdx < 0 || newIdx >= state.categoryGroups.length) return;
+        [state.categoryGroups[idx], state.categoryGroups[newIdx]] = [state.categoryGroups[newIdx], state.categoryGroups[idx]];
+        save(); renderSettings();
+    }
+
+    function moveCategory(groupId, catId, dir) {
+        const g = state.categoryGroups.find(g => g.id === groupId);
+        if (!g) return;
+        const idx = g.categories.findIndex(c => c.id === catId);
+        if (idx === -1) return;
+        const newIdx = idx + dir;
+        if (newIdx < 0 || newIdx >= g.categories.length) return;
+        [g.categories[idx], g.categories[newIdx]] = [g.categories[newIdx], g.categories[idx]];
+        save(); renderSettings();
+    }
+
+    function renameCategoryGroup(groupId, newName) {
+        const g = state.categoryGroups.find(g => g.id === groupId);
+        if (!g || !newName.trim()) return;
+        g.name = newName.trim();
+        save(); renderSettings();
+    }
+
+    function deleteCategory(catId) {
+        showConfirm('Delete Category', 'This category and its history will be removed.', () => {
+            state.categoryGroups.forEach(g => {
+                g.categories = g.categories.filter(c => c.id !== catId);
+            });
+            save(); renderSettings();
+        });
+    }
+
+    function openAddCategoryGroup() {
+        showInputModal('New Category Group', 'Enter group name', '', name => {
+            if(name && name.trim()) {
+                state.categoryGroups.push({ id: uid(), name: name.trim(), categories: [] });
+                save(); renderSettings();
+            }
+        });
     }
     function applyTheme() {
         const theme = localStorage.getItem(THEME_KEY) || 'system';
@@ -2389,10 +3303,24 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
     // ══════════════════════════════════════════════════════════════
     //  SIDE PANELS — CATEGORY, TRANSACTION, ACCOUNT, GOAL, SCHED, PAYEE
     // ══════════════════════════════════════════════════════════════
+    
+    function getPanelDraft(panelId) {
+        const p = document.getElementById(panelId);
+        if (!p) return {};
+        const draft = {};
+        p.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.id) draft[el.id] = el.value;
+        });
+        // Also capture toggle buttons
+        p.querySelectorAll('.toggle-track').forEach(el => {
+            if (el.id) draft[el.id] = el.classList.contains('on');
+        });
+        return draft;
+    }
 
     // ── Category Panel ──
     let _activeCatId = null;
-    function openCategoryPanel(catId) {
+    function openCategoryPanel(catId, draft = null) {
         _activeCatId = catId;
         const cat = state.categoryGroups.flatMap(g=>g.categories).find(c=>c.id===catId);
         if(!cat) return;
@@ -2401,14 +3329,13 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
         const activity = getCatActivityForMonth(cat.id,state.currentMonth,state.currentYear);
         const needs = getCatNeedsThisMonth(cat);
         const catTxs = state.transactions.filter(t=>t.category===catId&&parseDate(t.date).getMonth()===state.currentMonth&&parseDate(t.date).getFullYear()===state.currentYear).sort((a,b)=>new Date(b.date)-new Date(a.date));
-        const allCats = state.categoryGroups.flatMap(g=>g.categories).filter(c=>c.id!==catId);
 
         const panel = document.getElementById('panel-category');
         panel.innerHTML = `
         <div class="panel-section" style="display:flex;align-items:center;justify-content:space-between;">
             <div style="flex:1;min-width:0;">
                 <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#AAA;margin-bottom:4px;">Category</p>
-                <input id="cp-name" value="${cat.name}" style="background:transparent;border:none;border-bottom:2px solid transparent;font-size:18px;font-weight:900;padding:4px 0;margin-bottom:0;width:100%;" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent';renameCatFromPanel(this.value)" onkeydown="if(event.key==='Enter')this.blur()">
+                <input id="cp-name" value="${draft?.['cp-name'] || cat.name}" style="background:transparent;border:none;border-bottom:2px solid transparent;font-size:18px;font-weight:900;padding:4px 0;margin-bottom:0;width:100%;" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent';renameCatFromPanel(this.value)" onkeydown="if(event.key==='Enter')this.blur()">
             </div>
             <button onclick="closePanel('panel-category')" style="padding:8px;border-radius:10px;border:none;background:transparent;cursor:pointer;"><i data-lucide="x" style="width:16px;height:16px;color:#AAA;"></i></button>
         </div>
@@ -2420,7 +3347,7 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
         <div class="panel-section">
             <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#AAA;margin-bottom:8px;">Assign for this month</p>
             <div style="display:flex;gap:8px;">
-                <input type="number" id="cp-assign" value="${assigned||''}" placeholder="0" style="flex:1;margin-bottom:0;" onkeydown="if(event.key==='Enter')applyCatAssign()">
+                <input type="number" id="cp-assign" value="${draft?.['cp-assign'] || assigned || ''}" placeholder="0" style="flex:1;margin-bottom:0;" onkeydown="if(event.key==='Enter')applyCatAssign()">
                 <button onclick="applyCatAssign()" style="padding:12px 18px;background:var(--accent);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;">Set</button>
             </div>
             <div style="display:flex;gap:8px;margin-top:8px;">
@@ -2438,33 +3365,35 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
                     {value:'saving', label:'Savings (no deadline)'},
                     {value:'bydate', label:'Save by date'},
                     {value:'annual', label:'Annual'}
-                ], cat.goalType||'none', (val)=>{
-                    const s = document.getElementById('cp-goaltype');
-                    if(s) { s.value = val; updateCatGoal(); openCategoryPanel(_activeCatId); }
+                ], draft?.['cp-goaltype'] || cat.goalType || 'none', (val)=>{
+                    const draft = getPanelDraft('panel-category');
+                    draft['cp-goaltype'] = val;
+                    updateCatGoal(); openCategoryPanel(_activeCatId, draft);
                 })}
                 <select id="cp-goaltype" class="hidden">
-                    <option value="none" ${(cat.goalType||'none')==='none'?'selected':''}>None</option>
-                    <option value="monthly" ${cat.goalType==='monthly'?'selected':''}>Monthly</option>
-                    <option value="weekly" ${cat.goalType==='weekly'?'selected':''}>Weekly</option>
-                    <option value="saving" ${cat.goalType==='saving'?'selected':''}>Savings (no deadline)</option>
-                    <option value="bydate" ${cat.goalType==='bydate'?'selected':''}>Save by date</option>
-                    <option value="annual" ${cat.goalType==='annual'?'selected':''}>Annual</option>
+                    <option value="none">None</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="saving">Savings (no deadline)</option>
+                    <option value="bydate">Save by date</option>
+                    <option value="annual">Annual</option>
                 </select>
             </div>
             <div class="field-group"><label class="field-label">Behavior</label>
                 ${renderSelect('cp-goalbehavior-sel', [
                     {value:'refillTo', label:'Refill up to target'},
                     {value:'setAside', label:'Set aside full amount'}
-                ], cat.goalBehavior||'refillTo', (val)=>{
-                    const s = document.getElementById('cp-goalbehavior');
-                    if(s) { s.value = val; updateCatGoal(); openCategoryPanel(_activeCatId); }
+                ], draft?.['cp-goalbehavior'] || cat.goalBehavior || 'refillTo', (val)=>{
+                    const draft = getPanelDraft('panel-category');
+                    draft['cp-goalbehavior'] = val;
+                    updateCatGoal(); openCategoryPanel(_activeCatId, draft);
                 })}
                 <select id="cp-goalbehavior" class="hidden">
-                    <option value="refillTo" ${(cat.goalBehavior||'refillTo')==='refillTo'?'selected':''}>Refill up to target</option>
-                    <option value="setAside" ${cat.goalBehavior==='setAside'?'selected':''}>Set aside full amount</option>
+                    <option value="refillTo">Refill up to target</option>
+                    <option value="setAside">Set aside full amount</option>
                 </select>
             </div>
-            <div class="field-group"><label class="field-label">Target Amount</label><input type="number" id="cp-target" value="${cat.target||''}" placeholder="0" style="margin-bottom:0;" onblur="updateCatGoal()"></div>
+            <div class="field-group"><label class="field-label">Target Amount</label><input type="number" id="cp-target" value="${draft?.['cp-target'] || cat.target || ''}" placeholder="0" style="margin-bottom:0;" onblur="updateCatGoal()"></div>
             ${needs>0?`<p style="font-size:12px;color:var(--yellow);font-weight:700;margin-top:8px;">⚠ Needs ${fmtAmt(needs)} more this month</p>`:''}
         </div>
         <div class="panel-section">
@@ -2473,7 +3402,7 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
         </div>
         <div class="panel-section">
             <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#AAA;margin-bottom:8px;">Notes</p>
-            <textarea id="cp-notes" placeholder="Add notes..." style="margin-bottom:0;height:80px;resize:none;" onblur="saveCatNotes(this.value)">${cat.note||''}</textarea>
+            <textarea id="cp-notes" placeholder="Add notes..." style="margin-bottom:0;height:80px;resize:none;" onblur="saveCatNotes(this.value)">${draft?.['cp-notes'] || cat.note || ''}</textarea>
         </div>
         <div class="panel-section">
             <div class="panel-action" onclick="deleteCatFromPanel()" style="color:var(--red);"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete category</div>
@@ -2500,13 +3429,13 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
     // ── Transaction Panel ──
     function openAddTransaction(accId) { state.editingTxId=null; renderTxPanel(accId); openPanel('panel-transaction'); }
     function openEditTransaction(txId) { state.editingTxId=txId; renderTxPanel(); openPanel('panel-transaction'); }
-    function renderTxPanel(defaultAccId) {
+    function renderTxPanel(defaultAccId, draft = null) {
         const tx = state.editingTxId ? state.transactions.find(t=>t.id===state.editingTxId) : null;
-        const type = tx?tx.type:'outflow';
+        const type = draft?.['tx-type-switch'] || (tx?tx.type:'outflow');
         const p = document.getElementById('panel-transaction');
         
         const budgetAccounts = state.accounts.filter(a => a.onBudget !== false);
-        const selectedAccId = tx?tx.account:defaultAccId||state.currentAccountId;
+        const selectedAccId = draft?.['tx-account'] || (tx?tx.account:defaultAccId||state.currentAccountId);
         const currentAcc = budgetAccounts.find(a => a.id === selectedAccId);
         const isCC = currentAcc && currentAcc.type === 'creditCard';
 
@@ -2528,32 +3457,33 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
             
             <div class="field-group">
                 <label class="field-label">Date</label>
-                ${renderDatePicker('tx-date-input', tx?tx.date:today(), (val)=>{
+                ${renderDatePicker('tx-date-input', draft?.['tx-date'] || (tx?tx.date:today()), (val)=>{
                     document.getElementById('tx-date').value = val;
                 })}
-                <input type="hidden" id="tx-date" value="${tx?tx.date:today()}">
+                <input type="hidden" id="tx-date" value="${draft?.['tx-date'] || (tx?tx.date:today())}">
             </div>
 
             <div class="field-group">
                 <label class="field-label">Amount</label>
-                <input type="number" id="tx-amount" value="${tx?tx.amount:''}" placeholder="0" class="tabular">
+                <input type="number" id="tx-amount" value="${draft?.['tx-amount'] || (tx?tx.amount:'')}" placeholder="0" class="tabular">
             </div>
             
             <div class="field-group">
                 <label class="field-label">Account</label>
                 ${renderSelect('tx-account-sel', budgetAccounts.map(a=>({value:a.id, label:a.name})), selectedAccId, (val)=>{
-                    document.getElementById('tx-account').value = val;
-                    renderTxPanel(val);
+                    const draft = getPanelDraft('panel-transaction');
+                    draft['tx-account'] = val;
+                    renderTxPanel(val, draft);
                 })}
-                <select id="tx-account" class="hidden">${budgetAccounts.map(a=>`<option value="${a.id}" ${a.id===selectedAccId?'selected':''}>${a.name}</option>`).join('')}</select>
+                <input type="hidden" id="tx-account" value="${selectedAccId}">
             </div>
 
             <div class="field-group" id="tx-to-wrap" style="display:${type==='transfer'?'block':'none'};">
                 <label class="field-label">To Account</label>
-                ${renderSelect('tx-to-account-sel', budgetAccounts.map(a=>({value:a.id, label:a.name})), tx&&tx.toAccount, (val)=>{
+                ${renderSelect('tx-to-account-sel', budgetAccounts.map(a=>({value:a.id, label:a.name})), draft?.['tx-to-account'] || (tx&&tx.toAccount), (val)=>{
                     document.getElementById('tx-to-account').value = val;
                 })}
-                <select id="tx-to-account" class="hidden">${budgetAccounts.map(a=>`<option value="${a.id}" ${tx&&a.id===tx.toAccount?'selected':''}>${a.name}</option>`).join('')}</select>
+                <input type="hidden" id="tx-to-account" value="${draft?.['tx-to-account'] || (tx&&tx.toAccount) || ''}">
             </div>
 
             <div class="field-group">
@@ -2561,7 +3491,7 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
                 ${renderSelect('tx-payee-sel', [
                     {value:'_new', label:'+ New Payee'},
                     ...(state.payees||[]).map(p=>({value:p.name, label:p.name}))
-                ], tx?tx.payee:'', (val)=>{
+                ], draft?.['tx-payee'] || (tx?tx.payee:''), (val)=>{
                     if(val==='_new') {
                         document.getElementById('tx-payee-wrap').style.display='block';
                         document.getElementById('tx-payee-custom').focus();
@@ -2574,7 +3504,7 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
                 <div id="tx-payee-wrap" style="display:none;margin-top:12px;">
                     <input id="tx-payee-custom" placeholder="Enter new payee name..." style="background:var(--bg-card);border:1px solid var(--border);">
                 </div>
-                <input type="hidden" id="tx-payee" value="${tx?tx.payee||'':''}">
+                <input type="hidden" id="tx-payee" value="${draft?.['tx-payee'] || (tx?tx.payee||'':'' ) || ''}">
             </div>
 
             <div class="field-group" id="tx-cat-wrap" style="display:${type==='transfer'||(type==='inflow'&&!isCC)?'none':'block'};">
@@ -2583,15 +3513,15 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
                     {value:'', label:'Uncategorized'},
                     ...(isCC && type==='inflow' ? [{value:'rta', label:'Inflow: Ready to Assign'}] : []),
                     ...state.categoryGroups.flatMap(g => g.categories.map(c=>({value:c.id, label:`${g.name} : ${c.name}`})) )
-                ], tx&&tx.category, (val)=>{
+                ], draft?.['tx-category'] || (tx&&tx.category), (val)=>{
                     document.getElementById('tx-category').value = val;
                 })}
-                <select id="tx-category" class="hidden"><option value="">Uncategorized</option>${state.categoryGroups.map(g=>`<optgroup label="${g.name}">${g.categories.map(c=>`<option value="${c.id}" ${tx&&c.id===tx.category?'selected':''}>${c.name}</option>`).join('')}</optgroup>`).join('')}</select>
+                <input type="hidden" id="tx-category" value="${draft?.['tx-category'] || (tx&&tx.category) || ''}">
             </div>
             
             <div class="field-group">
                 <label class="field-label">Memo</label>
-                <input id="tx-memo" value="${tx?tx.memo||'':''}" placeholder="Optional note...">
+                <input id="tx-memo" value="${draft?.['tx-memo'] || (tx?tx.memo||'':'')}" placeholder="Optional note...">
             </div>
         </div>
 
@@ -2707,7 +3637,7 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
     let _editGoalId=null;
     function openAddGoal(){_editGoalId=null;renderGoalPanel();openPanel('panel-goal');}
     function openEditGoal(id){_editGoalId=id;renderGoalPanel();openPanel('panel-goal');}
-    function renderGoalPanel() {
+    function renderGoalPanel(draft = null) {
         const g=_editGoalId?state.goals.find(x=>x.id===_editGoalId):null;
         const p=document.getElementById('panel-goal');
         p.innerHTML=`
@@ -2716,12 +3646,12 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
             <button onclick="closePanel('panel-goal')" style="padding:8px;border:none;background:transparent;cursor:pointer;border-radius:10px;"><i data-lucide="x" style="width:16px;height:16px;color:#AAA;"></i></button>
         </div>
         <div class="panel-section">
-            <div class="field-group"><label class="field-label">Goal Name</label><input id="goal-name" value="${g?g.name:''}" placeholder="e.g. Emergency Fund" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Goal Name</label><input id="goal-name" value="${draft?.['goal-name'] || (g?g.name:'')}" placeholder="e.g. Emergency Fund" style="margin-bottom:0;"></div>
             <div class="field-group">
                 <label class="field-label">Goal Emoji</label>
                 <div class="emoji-input-wrapper">
-                    <input id="goal-emoji" value="${g?g.emoji||'🎯':'🎯'}" placeholder="🎯" oninput="this.nextElementSibling.textContent=this.value||'🎯'">
-                    <div class="emoji-preview-box">${g?g.emoji||'🎯':'🎯'}</div>
+                    <input id="goal-emoji" value="${draft?.['goal-emoji'] || (g?g.emoji||'🎯':'🎯')}" placeholder="🎯" oninput="this.nextElementSibling.textContent=this.value||'🎯'">
+                    <div class="emoji-preview-box">${draft?.['goal-emoji'] || (g?g.emoji||'🎯':'🎯')}</div>
                 </div>
             </div>
             <div class="field-group"><label class="field-label">Type</label>
@@ -2729,22 +3659,23 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
                     {value:'saving', label:'Savings Goal'},
                     {value:'debt', label:'Debt Payoff'},
                     {value:'monthly', label:'Monthly Target'}
-                ], g?g.type:'saving', (val)=>{
-                    document.getElementById('goal-type').value = val;
-                    renderGoalPanel();
+                ], draft?.['goal-type'] || (g?g.type:'saving'), (val)=>{
+                    const draft = getPanelDraft('panel-goal');
+                    draft['goal-type'] = val;
+                    renderGoalPanel(draft);
                 })}
-                <select id="goal-type" class="hidden"><option value="saving">Savings Goal</option><option value="debt">Debt Payoff</option><option value="monthly">Monthly Target</option></select>
+                <input type="hidden" id="goal-type" value="${draft?.['goal-type'] || (g?g.type:'saving')}">
             </div>
-            <div class="field-group"><label class="field-label">Target Amount</label><input type="number" id="goal-target" value="${g?g.target:''}" placeholder="0" style="margin-bottom:0;"></div>
-            <div class="field-group"><label class="field-label">Current Saved</label><input type="number" id="goal-saved" value="${g?g.saved||0:0}" placeholder="0" style="margin-bottom:0;"></div>
-            <div class="field-group"><label class="field-label">Monthly Contribution</label><input type="number" id="goal-monthly" value="${g?g.monthlyContribution||0:0}" placeholder="0" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Target Amount</label><input type="number" id="goal-target" value="${draft?.['goal-target'] || (g?g.target:'')}" placeholder="0" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Current Saved</label><input type="number" id="goal-saved" value="${draft?.['goal-saved'] || (g?g.saved||0:0)}" placeholder="0" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Monthly Contribution</label><input type="number" id="goal-monthly" value="${draft?.['goal-monthly'] || (g?g.monthlyContribution||0:0)}" placeholder="0" style="margin-bottom:0;"></div>
             <div class="field-group">
                 <label class="field-label">Target Date (optional)</label>
-                ${renderDatePicker('goal-date-input', g?g.targetDate||'':'', (val)=>{
+                ${renderDatePicker('goal-date-input', draft?.['goal-date'] || (g?g.targetDate||'':''), (val)=>{
                     document.getElementById('goal-date').value = val;
                     updateCatGoal();
                 })}
-                <input type="hidden" id="goal-date" value="${g?g.targetDate||'':''}">
+                <input type="hidden" id="goal-date" value="${draft?.['goal-date'] || (g?g.targetDate||'':'')}">
             </div>
         </div>
         <div class="panel-section" style="display:flex;flex-direction:column;gap:8px;">
@@ -2758,44 +3689,50 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
 
     // ── Scheduled Panel ──
     let _editSchId=null;
-    function openAddScheduled(){_editSchId=null;renderSchPanel();openPanel('panel-scheduled');}
-    function openEditScheduled(id){_editSchId=id;renderSchPanel();openPanel('panel-scheduled');}
-    function renderSchPanel(){const s=_editSchId?state.scheduledTxs.find(x=>x.id===_editSchId):null;const p=document.getElementById('panel-scheduled');p.innerHTML=`
+    function openAddScheduled(){_editSchId=null;renderSchPanel(); openPanel('panel-scheduled');}
+    function openEditScheduled(id){_editSchId=id;renderSchPanel(); openPanel('panel-scheduled');}
+    function renderSchPanel(draft = null) {
+        const s = _editSchId ? state.scheduledTxs.find(x=>x.id===_editSchId) : null;
+        const p = document.getElementById('panel-scheduled');
+        p.innerHTML=`
         <div class="panel-section" style="display:flex;justify-content:space-between;align-items:center;"><h3 style="font-size:18px;font-weight:900;">${s?'Edit Scheduled':'New Scheduled'}</h3><button onclick="closePanel('panel-scheduled')" style="padding:8px;border:none;background:transparent;cursor:pointer;border-radius:10px;"><i data-lucide="x" style="width:16px;height:16px;color:#AAA;"></i></button></div>
         <div class="panel-section">
-            <div class="field-group"><label class="field-label">Name</label><input id="sch-name" value="${s?s.name:''}" placeholder="e.g. Netflix" style="margin-bottom:0;"></div>
-            <div class="field-group"><label class="field-label">Amount</label><input type="number" id="sch-amount" value="${s?s.amount:''}" placeholder="0" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Name</label><input id="sch-name" value="${draft?.['sch-name'] || (s?s.name:'')}" placeholder="e.g. Netflix" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Amount</label><input type="number" id="sch-amount" value="${draft?.['sch-amount'] || (s?s.amount:'')}" placeholder="0" style="margin-bottom:0;"></div>
             <div class="field-group"><label class="field-label">Type</label>
-                ${renderSelect('sch-type-sel', [{value:'outflow', label:'Expense'}, {value:'inflow', label:'Income'}], s?s.type:'outflow', (val)=>{
-                    document.getElementById('sch-type').value = val;
-                    renderSchPanel();
+                ${renderSelect('sch-type-sel', [{value:'outflow', label:'Expense'}, {value:'inflow', label:'Income'}], draft?.['sch-type'] || (s?s.type:'outflow'), (val)=>{
+                    const draft = getPanelDraft('panel-scheduled');
+                    draft['sch-type'] = val;
+                    renderSchPanel(draft);
                 })}
-                <select id="sch-type" class="hidden"><option value="outflow">Expense</option><option value="inflow">Income</option></select>
+                <input type="hidden" id="sch-type" value="${draft?.['sch-type'] || (s?s.type:'outflow')}">
             </div>
             <div class="field-group"><label class="field-label">Account</label>
-                ${renderSelect('sch-account-sel', state.accounts.map(a=>({value:a.id, label:a.name})), s&&s.account, (val)=>{
-                    document.getElementById('sch-account').value = val;
-                    renderSchPanel();
+                ${renderSelect('sch-account-sel', state.accounts.map(a=>({value:a.id, label:a.name})), draft?.['sch-account'] || (s&&s.account), (val)=>{
+                    const draft = getPanelDraft('panel-scheduled');
+                    draft['sch-account'] = val;
+                    renderSchPanel(draft);
                 })}
-                <select id="sch-account" class="hidden">${state.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select>
+                <input type="hidden" id="sch-account" value="${draft?.['sch-account'] || (s&&s.account) || ''}">
             </div>
             <div class="field-group"><label class="field-label">Category</label>
                 ${renderSelect('sch-category-sel', [
                     {value:'', label:'—'},
                     ...state.categoryGroups.flatMap(g=>g.categories).map(c=>({value:c.id, label:c.name}))
-                ], s&&s.category, (val)=>{
-                    document.getElementById('sch-category').value = val;
-                    renderSchPanel();
+                ], draft?.['sch-category'] || (s&&s.category), (val)=>{
+                    const draft = getPanelDraft('panel-scheduled');
+                    draft['sch-category'] = val;
+                    renderSchPanel(draft);
                 })}
-                <select id="sch-category" class="hidden"><option value="">—</option>${state.categoryGroups.flatMap(g=>g.categories).map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+                <input type="hidden" id="sch-category" value="${draft?.['sch-category'] || (s&&s.category) || ''}">
             </div>
-            <div class="field-group"><label class="field-label">Payee</label><input id="sch-payee" value="${s?s.payee||'':''}" style="margin-bottom:0;"></div>
+            <div class="field-group"><label class="field-label">Payee</label><input id="sch-payee" value="${draft?.['sch-payee'] || (s?s.payee||'':'')}" style="margin-bottom:0;"></div>
             <div class="field-group">
                 <label class="field-label">Start / Next Date</label>
-                ${renderDatePicker('sch-date-input', s?s.nextDate:today(), (val)=>{
+                ${renderDatePicker('sch-date-input', draft?.['sch-date'] || (s?s.nextDate:today()), (val)=>{
                     document.getElementById('sch-date').value = val;
                 })}
-                <input type="hidden" id="sch-date" value="${s?s.nextDate:today()}">
+                <input type="hidden" id="sch-date" value="${draft?.['sch-date'] || (s?s.nextDate:today())}">
             </div>
             <div class="field-group"><label class="field-label">Frequency</label>
                 ${renderSelect('sch-freq-sel', [
@@ -2804,24 +3741,21 @@ ${state.accounts.map(a => `${a.name} | ${a.type} | Balance: ${fmtAmt(getAccountB
                     {value:'monthly', label:'Monthly'},
                     {value:'quarterly', label:'Quarterly'},
                     {value:'annually', label:'Annually'}
-                ], s?s.frequency:'monthly', (val)=>{
-                    document.getElementById('sch-freq').value = val;
-                    renderSchPanel();
+                ], draft?.['sch-freq'] || (s?s.frequency:'monthly'), (val)=>{
+                    const draft = getPanelDraft('panel-scheduled');
+                    draft['sch-freq'] = val;
+                    renderSchPanel(draft);
                 })}
-                <select id="sch-freq" class="hidden">
-                    <option value="weekly">Weekly</option>
-                    <option value="bi-weekly">Bi-weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="annually">Annually</option>
-                </select>
+                <input type="hidden" id="sch-freq" value="${draft?.['sch-freq'] || (s?s.frequency:'monthly')}">
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;"><span style="font-size:14px;font-weight:700;">Active</span><button id="sch-active-toggle" onclick="this.classList.toggle('on')" class="toggle-track ${s?s.active?'on':'':'on'}"><div class="toggle-thumb"></div></button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;"><span style="font-size:14px;font-weight:700;">Active</span><button id="sch-active-toggle" onclick="this.classList.toggle('on')" class="toggle-track ${ (draft?.['sch-active-toggle'] !== undefined) ? (draft['sch-active-toggle'] ? 'on' : '') : (s ? (s.active ? 'on' : '') : 'on') }"><div class="toggle-thumb"></div></button></div>
         </div>
         <div class="panel-section" style="display:flex;flex-direction:column;gap:8px;">
             <button onclick="saveSchFromPanel()" class="primary">${s?'Save':'Create'}</button>
             ${s?`<button onclick="deleteSchFromPanel()" class="secondary">Delete</button>`:''}
-        </div>`;lucide.createIcons();}
+        </div>`;
+        lucide.createIcons();
+    }
     function saveSchFromPanel(){const name=document.getElementById('sch-name').value.trim();const amount=parseFloat(document.getElementById('sch-amount').value)||0;if(!name||!amount){showToast('Name and amount required');return;}const obj={name,amount,type:document.getElementById('sch-type').value,account:document.getElementById('sch-account').value,category:document.getElementById('sch-category').value||null,payee:document.getElementById('sch-payee').value,nextDate:document.getElementById('sch-date').value,frequency:document.getElementById('sch-freq').value,active:document.getElementById('sch-active-toggle').classList.contains('on')};if(_editSchId){const s=state.scheduledTxs.find(x=>x.id===_editSchId);if(s)Object.assign(s,obj);}else{obj.id=uid();state.scheduledTxs.push(obj);}closePanel('panel-scheduled');save();showToast(_editSchId?'Updated!':'Scheduled created!');}
     function deleteSchFromPanel(){showConfirm('Delete?','Remove this scheduled transaction?',()=>{state.scheduledTxs=state.scheduledTxs.filter(s=>s.id!==_editSchId);closePanel('panel-scheduled');save();});}
 
